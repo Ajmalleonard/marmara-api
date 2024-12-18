@@ -1,10 +1,138 @@
+  generator client {
+    provider = "prisma-client-js"
+  }
 
+  datasource db {
+    provider = "mongodb"
+    url      = env("DATABASE_URL")
+  }
 
-generator client {
-  provider = "prisma-client-js"
+  model User {
+    id                        String    @id @default(auto()) @map("_id") @db.ObjectId
+    email                     String    @unique
+    password                  String
+    name                      String
+    lastLogin                 DateTime  @default(now())
+    isVerified               Boolean   @default(false)
+    isAdmin                  Boolean   @default(false)
+    resetPasswordToken       String?
+    resetPasswordExpiresAt   DateTime?
+    verificationToken        String?
+    verificationTokenExpiresAt DateTime?
+    bookings                 Booking[]
+    wishlists                Package[]  @relation(fields: [wishlistIds], references: [id])
+    wishlistIds              String[]   @db.ObjectId
+    createdAt                DateTime  @default(now())
+    updatedAt                DateTime  @updatedAt
+  }
+
+  model Booking {
+    id          String   @id @default(auto()) @map("_id") @db.ObjectId
+    user        User     @relation(fields: [userId], references: [id])
+    userId      String   @db.ObjectId
+    package     Package  @relation(fields: [packageId], references: [id])
+    packageId   String   @db.ObjectId
+    bookingDate DateTime @default(now())
+    status      String   @default("pending")
+    totalPrice  Float
+    adults      Int
+    children    Int?
+    infants     Int?
+    pets        Int?
+    startDate   DateTime
+    endDate     DateTime
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+  }
+
+  model Visit {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    page      String
+    country   String
+    visitDate DateTime @default(now())
+    userAgent String
+    ip        String?
+  }
+
+  model Place {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    name      String
+    content   String
+    country   String
+    photos    String[]
+    isTop     Boolean  @default(false)
+    center    Json
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+  }
+
+model Package {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  slug            String   @unique
+  days            Int
+  nights          Int
+  minimum_people  Int?
+  maximum_people  Int?
+  photos          String[]
+  descriptions    String
+  price           Float
+  destination     String
+  lower_price     Float?
+  featured        Boolean   @default(false)
+  
+  itinerary       Itinerary[]
+  included        Included[]
+  excluded        Excluded[]
+  
+  isMemberOnly    Boolean   @default(false)
+  isVip          Boolean   @default(false)
+  reviews        Review[]
+  likes          Int       @default(0)
+  likedBy        String[]  @db.ObjectId
+  
+  bookings       Booking[]
+  users          User[]    @relation(fields: [userIds], references: [id])
+  userIds        String[]  @db.ObjectId
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }
 
-datasource db {
-  provider = "mongodb"
-  url      = env("DATABASE_URL")
+model Itinerary {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  day         Int
+  title       String
+  activities  Activity[]
+  package     Package    @relation(fields: [packageId], references: [id])
+  packageId   String     @db.ObjectId
+}
+
+model Activity {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  itinerary   Itinerary @relation(fields: [itineraryId], references: [id])
+  itineraryId String    @db.ObjectId
+}
+
+model Included {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  package     Package  @relation(fields: [packageId], references: [id])
+  packageId   String   @db.ObjectId
+}
+
+model Excluded {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  package     Package  @relation(fields: [packageId], references: [id])
+  packageId   String   @db.ObjectId
+}
+
+model Review {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  rating      Float
+  comment     String
+  date        DateTime @default(now())
+  package     Package  @relation(fields: [packageId], references: [id])
+  packageId   String   @db.ObjectId
 }
