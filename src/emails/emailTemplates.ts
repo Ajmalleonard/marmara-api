@@ -317,3 +317,4 @@ export const NEW_BOOKING_EMAIL_TEMPLATE = `
 
 </html>
 `;
+
