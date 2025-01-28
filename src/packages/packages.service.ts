@@ -2,123 +2,19 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePackageDto } from './dto/create-package.dto';
 import { UpdatePackageDto } from './dto/update-package.dto';
-import slugify from 'slugify';
 
 @Injectable()
 export class PackagesService {
   constructor(private prisma: PrismaService) {}
 
   async create(createPacksDto: CreatePackageDto) {
-    const { itinerary, included, excluded, ...PacksData } = createPacksDto;
-    const slug = slugify(createPacksDto.name, { lower: true });
+    try {
+      const { itinerary, included, excluded, ...PacksData } = createPacksDto;
 
-    return this.prisma.package.create({
-      data: {
-        slug,
-        ...PacksData,
-        itinerary: {
-          create: itinerary.map((day) => ({
-            day: day.day,
-            title: day.title,
-            activities: {
-              create: day.activities,
-            },
-          })),
-        },
-        included: {
-          create: included.map((title) => ({ title })),
-        },
-        excluded: {
-          create: excluded.map((title) => ({ title })),
-        },
-      },
-      include: {
-        itinerary: {
-          include: {
-            activities: true,
-          },
-        },
-        included: true,
-        excluded: true,
-      },
-    });
-  }
-
-  async findAll(query: any = {}) {
-    const {
-      featured,
-      destination,
-      minPrice,
-      maxPrice,
-      isVip,
-      isMemberOnly,
-      ...rest
-    } = query;
-
-    let where: any = { ...rest };
-
-    if (featured) where.featured = featured === 'true';
-    if (destination) where.destination = destination;
-    if (isVip) where.isVip = isVip === 'true';
-    if (isMemberOnly) where.isMemberOnly = isMemberOnly === 'true';
-    if (minPrice || maxPrice) {
-      where.price = {};
-      if (minPrice) where.price.gte = parseFloat(minPrice);
-      if (maxPrice) where.price.lte = parseFloat(maxPrice);
-    }
-
-    return this.prisma.package.findMany({
-      where,
-      include: {
-        itinerary: {
-          include: {
-            activities: true,
-          },
-        },
-        included: true,
-        excluded: true,
-        reviews: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-  }
-
-  async findOne(slug: string) {
-    const Packs = await this.prisma.package.findUnique({
-      where: { slug },
-      include: {
-        itinerary: {
-          include: {
-            activities: true,
-          },
-        },
-        included: true,
-        excluded: true,
-        reviews: true,
-      },
-    });
-
-    if (!Packs) {
-      throw new NotFoundException(`Packs with ID ${slug} not found`);
-    }
-
-    return Packs;
-  }
-
-  async update(id: string, updatePacksDto: UpdatePackageDto) {
-    await this.findOne(id);
-
-    const { itinerary, included, excluded, ...PacksData } = updatePacksDto;
-
-    return this.prisma.package.update({
-      where: { id },
-      data: {
-        ...PacksData,
-        ...(itinerary && {
+      const pack = await this.prisma.package.create({
+        data: {
+          ...PacksData,
           itinerary: {
-            deleteMany: {},
             create: itinerary.map((day) => ({
               day: day.day,
               title: day.title,
@@ -127,64 +23,254 @@ export class PackagesService {
               },
             })),
           },
-        }),
-        ...(included && {
           included: {
-            deleteMany: {},
-            create: included.map((title) => ({ title })),
+            create: included.map((item) => ({
+              title: item.title,
+            })),
           },
-        }),
-        ...(excluded && {
           excluded: {
-            deleteMany: {},
-            create: excluded.map((title) => ({ title })),
-          },
-        }),
-      },
-      include: {
-        itinerary: {
-          include: {
-            activities: true,
+            create: excluded.map((item) => ({
+              title: item.title,
+            })),
           },
         },
-        included: true,
-        excluded: true,
-      },
-    });
+        include: {
+          itinerary: {
+            include: {
+              activities: true,
+            },
+          },
+          included: true,
+          excluded: true,
+        },
+      });
+
+      return {
+        status: 'success',
+        message: 'Package created successfully',
+        data: pack,
+      };
+    } catch (error) {
+      return {
+        status: 'error',
+        message: 'Failed to create package',
+        error: error.message,
+      };
+    }
   }
 
-  async remove(id: string) {
-    await this.findOne(id);
-    return this.prisma.package.delete({
-      where: { id },
-    });
+  async findAll(query: any = {}) {
+    try {
+      const {
+        featured,
+        destination,
+        minPrice,
+        maxPrice,
+        isVip,
+        isMemberOnly,
+        ...rest
+      } = query;
+
+      let where: any = { ...rest };
+
+      if (featured) where.featured = featured === 'true';
+      if (destination) where.destination = destination;
+      if (isVip) where.isVip = isVip === 'true';
+      if (isMemberOnly) where.isMemberOnly = isMemberOnly === 'true';
+      if (minPrice || maxPrice) {
+        where.price = {};
+        if (minPrice) where.price.gte = parseFloat(minPrice);
+        if (maxPrice) where.price.lte = parseFloat(maxPrice);
+      }
+
+      const packages = await this.prisma.package.findMany({
+        where,
+        include: {
+          itinerary: {
+            include: {
+              activities: true,
+            },
+          },
+          included: true,
+          excluded: true,
+          reviews: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+      return {
+        status: 'success',
+        message: 'Packages retrieved successfully',
+        data: packages,
+      };
+    } catch (error) {
+      return {
+        status: 'error',
+        message: 'Failed to retrieve packages',
+        error: error.message,
+      };
+    }
+  }
+
+  async findOne(slug: string) {
+    try {
+      const Packs = await this.prisma.package.findUnique({
+        where: { slug },
+        include: {
+          itinerary: {
+            include: {
+              activities: true,
+            },
+          },
+          included: true,
+          excluded: true,
+          reviews: true,
+        },
+      });
+
+      if (!Packs) {
+        return {
+          status: 'error',
+          message: `Package with ID ${slug} not found`,
+          error: 'NotFound',
+        };
+      }
+
+      return {
+        status: 'success',
+        message: 'Package retrieved successfully',
+        data: Packs,
+      };
+    } catch (error) {
+      return {
+        status: 'error',
+        message: 'Failed to retrieve package',
+        error: error.message,
+      };
+    }
+  }
+
+  async update(id: string, updatePacksDto: UpdatePackageDto) {
+    try {
+      await this.findOne(id);
+
+      const { itinerary, included, excluded, ...PacksData } = updatePacksDto;
+
+      const updatedPackage = await this.prisma.package.update({
+        where: { id },
+        data: {
+          ...PacksData,
+          ...(itinerary && {
+            itinerary: {
+              deleteMany: {},
+              create: itinerary.map((day) => ({
+                day: day.day,
+                title: day.title,
+                activities: {
+                  create: day.activities,
+                },
+              })),
+            },
+          }),
+          ...(included && {
+            included: {
+              deleteMany: {},
+              create: included.map((item) => ({
+                title: item.title,
+              })),
+            },
+          }),
+          ...(excluded && {
+            excluded: {
+              deleteMany: {},
+              create: excluded.map((item) => ({
+                title: item.title,
+              })),
+            },
+          }),
+        },
+        include: {
+          itinerary: {
+            include: {
+              activities: true,
+            },
+          },
+          included: true,
+          excluded: true,
+        },
+      });
+
+      return {
+        status: 'success',
+        message: 'Package updated successfully',
+        data: updatedPackage,
+      };
+    } catch (error) {
+      return {
+        status: 'error',
+        message: 'Failed to update package',
+        error: error.message,
+      };
+    }
   }
 
   async addReview(id: string, userId: string, rating: number, comment: string) {
-    await this.findOne(id);
+    try {
+      await this.findOne(id);
 
-    return this.prisma.review.create({
-      data: {
-        rating,
-        comment,
-        package: { connect: { id } },
-      },
-    });
+      const review = await this.prisma.review.create({
+        data: {
+          rating,
+          comment,
+          package: { connect: { id } },
+        },
+      });
+
+      return {
+        status: 'success',
+        message: 'Review added successfully',
+        data: review,
+      };
+    } catch (error) {
+      return {
+        status: 'error',
+        message: 'Failed to add review',
+        error: error.message,
+      };
+    }
   }
 
   async toggleLike(id: string, userId: string) {
-    const Packs = await this.findOne(id);
-    const hasLiked = Packs.likedBy.includes(userId);
+    try {
+      const Packs = await this.findOne(id);
+      const hasLiked = Packs.data.likedBy.includes(userId);
 
-    return this.prisma.package.update({
-      where: { id },
-      data: {
-        likes: hasLiked ? Packs.likes - 1 : Packs.likes + 1,
-        likedBy: hasLiked
-          ? { set: Packs.likedBy.filter((id) => id !== userId) }
-          : { push: userId },
-      },
-    });
+      const updatedPackage = await this.prisma.package.update({
+        where: { id },
+        data: {
+          likes: hasLiked ? Packs.data.likes - 1 : Packs.data.likes + 1,
+          likedBy: hasLiked
+            ? { set: Packs.data.likedBy.filter((id) => id !== userId) }
+            : { push: userId },
+        },
+      });
+
+      return {
+        status: 'success',
+        message: hasLiked
+          ? 'Package unliked successfully'
+          : 'Package liked successfully',
+        data: updatedPackage,
+      };
+    } catch (error) {
+      return {
+        status: 'error',
+        message: 'Failed to toggle like',
+        error: error.message,
+      };
+    }
   }
 
   async getFeaturedPackages() {
@@ -194,7 +280,7 @@ export class PackagesService {
   async getVipPackages() {
     return this.findAll({ isVip: true });
   }
-  // Add multiple packages at once
+
   async createMany(packages: CreatePackageDto[]) {
     const createdPackages = await Promise.all(
       packages.map((pkg) => {
@@ -212,12 +298,12 @@ export class PackagesService {
             },
             included: {
               create: pkg.included.map((item) => ({
-                title: item,
+                title: item.title,
               })),
             },
             excluded: {
               create: pkg.excluded.map((item) => ({
-                title: item,
+                title: item.title,
               })),
             },
           },
@@ -237,17 +323,14 @@ export class PackagesService {
     return createdPackages;
   }
 
-  // Get packages by destination
   async getByDestination(destination: string) {
     return this.findAll({ destination });
   }
 
-  // Get packages within price range
   async getByPriceRange(minPrice: number, maxPrice: number) {
     return this.findAll({ minPrice, maxPrice });
   }
 
-  // Get top rated packages
   async getTopRated() {
     const packages = await this.prisma.package.findMany({
       include: {
@@ -266,7 +349,6 @@ export class PackagesService {
       .slice(0, 10);
   }
 
-  // Get most booked packages
   async getMostBooked() {
     return this.prisma.package.findMany({
       include: {
@@ -281,7 +363,6 @@ export class PackagesService {
     });
   }
 
-  // Get packages by duration
   async getByDuration(days: number) {
     return this.prisma.package.findMany({
       where: {
@@ -301,7 +382,6 @@ export class PackagesService {
     });
   }
 
-  // Search packages
   async search(searchTerm: string) {
     return this.prisma.package.findMany({
       where: {
@@ -322,6 +402,7 @@ export class PackagesService {
       },
     });
   }
+
   async findBySlug(slug: string) {
     const Package = await this.prisma.package.findUnique({
       where: { slug },
@@ -342,5 +423,68 @@ export class PackagesService {
     }
 
     return Package;
+  }
+
+  async removeBySlug(slug: string) {
+    const pack = await this.findBySlug(slug);
+    return this.remove(pack.id);
+  }
+
+  async remove(id: string) {
+    // Start an interactive transaction
+    console.log('Hits on delete package');
+    return await this.prisma.$transaction(async (tx) => {
+      // Check if package exists
+      const pack = await tx.package.findUnique({
+        where: { id },
+        include: {
+          itinerary: true,
+          included: true,
+          excluded: true,
+          reviews: true,
+        },
+      });
+
+      console.log('Hits on delete package', pack);
+
+      if (!pack) {
+        throw new NotFoundException(`Package with ID ${id} not found`);
+      }
+
+      // Delete related data in sequence
+      await tx.review.deleteMany({
+        where: { packageId: id },
+      });
+
+      // Get all itinerary IDs
+      const itineraryIds = pack.itinerary.map((i) => i.id);
+
+      await tx.activity.deleteMany({
+        where: { itineraryId: { in: itineraryIds } },
+      });
+
+      await tx.itinerary.deleteMany({
+        where: { packageId: id },
+      });
+
+      await tx.included.deleteMany({
+        where: { packageId: id },
+      });
+
+      await tx.excluded.deleteMany({
+        where: { packageId: id },
+      });
+
+      // Finally delete the package
+      const deletedPackage = await tx.package.delete({
+        where: { id },
+      });
+      console.log('Hits on delete package here', deletedPackage);
+      return {
+        status: 'success',
+        message: 'Package deleted successfully',
+        data: deletedPackage,
+      };
+    });
   }
 }
