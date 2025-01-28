@@ -1,4 +1,4 @@
-import { CreateContactDto } from 'src/contact/dto/create-contact.dto.js';
+import { CreateContactDto } from '@/contact/dto/create-contact.dto';
 import {
   PASSWORD_RESET_REQUEST_TEMPLATE,
   PASSWORD_RESET_SUCCESS_TEMPLATE,
@@ -7,8 +7,8 @@ import {
   BOOKING_CONFIRMATION_EMAIL_TEMPLATE,
   NEW_BOOKING_EMAIL_TEMPLATE,
   feedback_Mail,
-} from './emailTemplates.js';
-import { mailtrapClient, sender } from './mailtrap.config.js';
+} from './emailTemplates';
+import { mailtrapClient, sender } from './mailtrap.config';
 
 export const sendVerificationEmail = async (
   email: string,
