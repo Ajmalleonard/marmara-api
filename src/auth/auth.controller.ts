@@ -4,14 +4,13 @@ import {
   Body,
   Get,
   Param,
-  UseGuards,
   Res,
   Req,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
-import { JwtAuthGuard } from 'src/guard/jwt-auth.guard';
+
 import { CreateUserDto } from './dto/create-auth.dto';
 import { LoginDto } from './dto/login.dto';
 
@@ -24,6 +23,7 @@ export class AuthController {
     @Body() data: CreateUserDto,
     @Res({ passthrough: true }) response: Response,
   ) {
+    console.log('register');
     const tokens = await this.authService.register(data);
 
     this.setTokenCookies(response, tokens);
@@ -72,9 +72,15 @@ export class AuthController {
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const refreshToken = request.cookies?.['refresh_token'];
+    const refreshToken =
+      request.cookies?.refresh_token ||
+      request.headers?.cookie
+        ?.split(';')
+        .find((c) => c.trim().startsWith('refresh_token='))
+        ?.split('=')[1];
+
     if (!refreshToken) {
-      throw new UnauthorizedException('No refresh token');
+      throw new UnauthorizedException('No refresh token found');
     }
 
     const tokens = await this.authService.refreshToken(refreshToken);
@@ -88,14 +94,14 @@ export class AuthController {
     response.cookie('access_token', tokens.accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: 15 * 60 * 1000, // 15 minutes
     });
 
     response.cookie('refresh_token', tokens.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
   }
