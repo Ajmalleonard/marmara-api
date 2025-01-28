@@ -14,19 +14,22 @@ import { PackagesService } from './packages.service';
 import { CreatePackageDto } from './dto/create-package.dto';
 import { UpdatePackageDto } from './dto/update-package.dto';
 import { JwtAuthGuard } from '../guard/jwt-auth.guard';
-import { GetUser } from '../decorators/get-user.decorator';
+import { Auth, GetUser } from '../decorators/Auth.decorator';
 import { User } from '@prisma/client';
+import slugify from 'slugify';
 
 @Controller('packages')
 export class PackagesController {
   constructor(private readonly packagesService: PackagesService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @Auth()
   create(@Body() createPackageDto: CreatePackageDto, @GetUser() user: User) {
+    console.log(user);
     if (!user.isAdmin) {
       throw new ForbiddenException('Only admins can create packages');
     }
+    createPackageDto.slug = slugify(createPackageDto.name, { lower: true });
     return this.packagesService.create(createPackageDto);
   }
 
@@ -93,25 +96,31 @@ export class PackagesController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  @Auth()
   update(
     @Param('id') id: string,
     @Body() updatePackageDto: UpdatePackageDto,
     @GetUser() user: User,
   ) {
-    if (!user.isAdmin) {
-      throw new ForbiddenException('Only admins can update packages');
-    }
     return this.packagesService.update(id, updatePackageDto);
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @Auth()
   remove(@Param('id') id: string, @GetUser() user: User) {
     if (!user.isAdmin) {
       throw new ForbiddenException('Only admins can delete packages');
     }
     return this.packagesService.remove(id);
+  }
+
+  @Delete('slug/:slug')
+  @UseGuards(JwtAuthGuard)
+  removeBySlug(@Param('slug') slug: string, @GetUser() user: User) {
+    if (!user.isAdmin) {
+      throw new ForbiddenException('Only admins can delete packages');
+    }
+    return this.packagesService.removeBySlug(slug);
   }
 
   @Post(':id/reviews')
