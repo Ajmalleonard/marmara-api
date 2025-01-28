@@ -1,24 +1,55 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import * as cookieParser from 'cookie-parser';
-import { ValidationPipe } from '@nestjs/common/pipes';
+import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './Guards/AllExceptions.filter';
+import * as cookieParser from 'cookie-parser';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors({
-    origin: 'http://localhost:3000',
-    credentials: true,
-  });
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      whitelist: true,
-      forbidNonWhitelisted: true,
-    }),
-  );
-  app.useGlobalFilters(new AllExceptionsFilter());
+
+  // Enable cookie parsing
   app.use(cookieParser());
-  await app.listen(process.env.PORT ?? 2020);
+
+  // Enable CORS
+  app.enableCors({
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:2020',
+      'https://apidog.com',
+      'chrome-extension://*',
+      'https://marmaraholidays.com',
+      'https://www.marmaraholidays.com',
+      'https://www.marmaratravels.com',
+    ], // Add your frontend URLs
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Accept',
+      'Cookie',
+      'Set-Cookie',
+    ],
+    exposedHeaders: ['Set-Cookie'],
+  });
+
+  // Debug middleware
+  app.use((req, res, next) => {
+    console.log('Cookies:', req.cookies);
+    console.log('Headers:', req.headers);
+    next();
+  });
+  // Global pipes and filters
+  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalFilters(new AllExceptionsFilter());
+
+  // Set global prefix (optional)
+  // app.setGlobalPrefix('api');
+
+  // Ensure the server is listening on all network interfaces
+  await app.listen(2020, '0.0.0.0');
+
+  console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();
-console.log('Server is running on http://localhost:2020');
