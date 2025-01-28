@@ -13,7 +13,7 @@ import { BookingsService } from './bookings.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBooking } from './dto/update-booking.dto';
 import { JwtAuthGuard } from '../guard/jwt-auth.guard';
-import { GetUser } from '../decorators/get-user.decorator';
+import { GetUser } from '../decorators/Auth.decorator';
 import { User } from '@prisma/client';
 
 @Controller('bookings')
