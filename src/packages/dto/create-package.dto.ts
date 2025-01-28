@@ -6,7 +6,6 @@ import {
   IsArray,
   ValidateNested,
   Min,
-  IsDate,
   Max,
   IsNotEmpty,
 } from 'class-validator';
@@ -31,18 +30,14 @@ export class ItineraryDto {
   activities: ActivityDto[];
 }
 
-export class ReviewDto {
-  @IsNumber()
-  @Min(1)
-  @Max(5)
-  rating: number;
-
+export class IncludedItemDto {
   @IsString()
-  comment: string;
+  title: string;
+}
 
-  @IsDate()
-  @Type(() => Date)
-  date: Date;
+export class ExcludedItemDto {
+  @IsString()
+  title: string;
 }
 
 export class CreatePackageDto {
@@ -50,7 +45,7 @@ export class CreatePackageDto {
   name: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   slug: string;
 
   @IsNumber()
@@ -97,12 +92,14 @@ export class CreatePackageDto {
   itinerary: ItineraryDto[];
 
   @IsArray()
-  @IsString({ each: true })
-  included: string[];
+  @ValidateNested({ each: true })
+  @Type(() => IncludedItemDto)
+  included: IncludedItemDto[];
 
   @IsArray()
-  @IsString({ each: true })
-  excluded: string[];
+  @ValidateNested({ each: true })
+  @Type(() => ExcludedItemDto)
+  excluded: ExcludedItemDto[];
 
   @IsBoolean()
   @IsOptional()
