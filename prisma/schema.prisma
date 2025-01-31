@@ -61,9 +61,17 @@ generator client {
     country   String
     photos    String[]
     isTop     Boolean  @default(false)
-    center    Json
+    center    Cordinates? @relation("PlaceToCordinates")
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+  }
+  // Cordinates is a composite type
+  model Cordinates {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    latitude  Float
+    longitude Float
+    placeId   String   @unique @db.ObjectId
+    place     Place    @relation("PlaceToCordinates", fields: [placeId], references: [id], onDelete: Cascade)
   }
 
 model Package {
