@@ -25,7 +25,6 @@ export class PackagesController {
   @Post()
   @Auth()
   create(@Body() createPackageDto: CreatePackageDto, @GetUser() user: User) {
-    console.log(user);
     if (!user.isAdmin) {
       throw new ForbiddenException('Only admins can create packages');
     }
