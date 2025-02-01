@@ -72,18 +72,60 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    await this.prisma.user.update({
+    // Update last login
+    const updatedUser = await this.prisma.user.update({
       where: { id: user.id },
       data: { lastLogin: new Date() },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        isAdmin: true,
+        isVerified: true,
+        lastLogin: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
+    console.log(updatedUser);
 
-    return this.generateTokens(user);
+    const tokens = this.generateTokens(user);
+
+    const Data = {
+      user: updatedUser,
+      tokes: tokens,
+    };
+    console.log(Data);
+
+    return Data;
   }
 
   async updateUser(userId: string, updateUserDto: UpdateUserDto) {
     return this.prisma.user.update({
       where: { id: userId },
       data: updateUserDto,
+    });
+  }
+
+  async getUsers() {
+    return this.prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        lastLogin: true,
+        isVerified: true,
+        isAdmin: true,
+        resetPasswordToken: true,
+        resetPasswordExpiresAt: true,
+        verificationToken: true,
+        verificationTokenExpiresAt: true,
+        bookings: true,
+        wishlists: true,
+        wishlistIds: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
   }
 
@@ -165,7 +207,7 @@ export class AuthService {
     };
 
     return {
-      accessToken: this.jwtService.sign(payload, { expiresIn: '15m' }),
+      accessToken: this.jwtService.sign(payload, { expiresIn: '1h' }),
       refreshToken: this.jwtService.sign(payload, { expiresIn: '7d' }),
     };
   }
