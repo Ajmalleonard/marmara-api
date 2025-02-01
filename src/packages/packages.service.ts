@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePackageDto } from './dto/create-package.dto';
 import { UpdatePackageDto } from './dto/update-package.dto';
@@ -7,13 +11,14 @@ import { UpdatePackageDto } from './dto/update-package.dto';
 export class PackagesService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createPacksDto: CreatePackageDto) {
+  async create(createPackageDto: CreatePackageDto) {
     try {
-      const { itinerary, included, excluded, ...PacksData } = createPacksDto;
+      const { itinerary, included, excluded, ...packageData } =
+        createPackageDto;
 
       const pack = await this.prisma.package.create({
         data: {
-          ...PacksData,
+          ...packageData,
           itinerary: {
             create: itinerary.map((day) => ({
               day: day.day,
@@ -51,11 +56,17 @@ export class PackagesService {
         data: pack,
       };
     } catch (error) {
-      return {
-        status: 'error',
-        message: 'Failed to create package',
-        error: error.message,
-      };
+      console.error('Error creating package:', error);
+
+      if (error.code === 'P2002') {
+        throw new BadRequestException(
+          'A package with this name already exists.',
+        );
+      }
+
+      throw new BadRequestException(
+        'Failed to create package. Please check your input data.',
+      );
     }
   }
 
