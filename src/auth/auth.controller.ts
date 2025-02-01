@@ -13,6 +13,7 @@ import { AuthService } from './auth.service';
 
 import { CreateUserDto } from './dto/create-auth.dto';
 import { LoginDto } from './dto/login.dto';
+import { Auth } from '@/decorators/Auth.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -30,14 +31,43 @@ export class AuthController {
     return { message: 'Registration successful' };
   }
 
+  @Get()
+  @Auth()
+  async getUsers() {
+    const users = await this.authService.getUsers();
+    return {
+      message: 'success',
+      users,
+    };
+  }
+
   @Post('login')
   async login(
     @Body() data: LoginDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const tokens = await this.authService.login(data);
-    this.setTokenCookies(response, tokens);
-    return { message: 'Login successful' };
+    const Data = await this.authService.login(data);
+
+    // Set cookies with appropriate options
+    response.cookie('access_token', Data.tokes.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // true in production
+      sameSite: 'lax',
+
+      maxAge: 60 * 60 * 1000, // 60min
+    });
+
+    response.cookie('refresh_token', Data.tokes.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // true in production
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    return {
+      message: 'Login successful',
+      user: Data.user,
+    };
   }
 
   @Post('logout')
@@ -95,7 +125,7 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 15 * 60 * 1000, // 15 minutes
+      maxAge: 60 * 60 * 1000, // 60 minutes
     });
 
     response.cookie('refresh_token', tokens.refreshToken, {
