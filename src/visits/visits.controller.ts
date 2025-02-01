@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
 import { VisitsService } from './visits.service';
 import { CreateVisitDto } from './dto/create-visit.dto';
-import { UpdateVisitDto } from './dto/update-visit.dto';
+import { VisitQueryDto } from './dto/visit-query.dto';
+import { Auth } from '../decorators/Auth.decorator';
 
 @Controller('visits')
 export class VisitsController {
@@ -13,22 +14,44 @@ export class VisitsController {
   }
 
   @Get()
-  findAll() {
-    return this.visitsService.findAll();
+  @Auth()
+  findAll(@Query() query: VisitQueryDto) {
+    return this.visitsService.findAll(query);
+  }
+
+  @Get('stats')
+  @Auth()
+  getVisitStats() {
+    return this.visitsService.getVisitStats();
+  }
+
+  @Get('country/:country')
+  @Auth()
+  getVisitsByCountry(@Param('country') country: string) {
+    return this.visitsService.findAll({ country });
+  }
+
+  @Get('continentchart')
+  @Auth()
+  getStatisticsContinentCount() {
+    return this.visitsService.getTopContinentStats();
+  }
+
+  @Get('continent/:continent')
+  @Auth()
+  getVisitsByContinent(@Param('continent') continent: string) {
+    return this.visitsService.findAll({ continent });
+  }
+
+  @Get('page/:page')
+  @Auth()
+  getVisitsByPage(@Param('page') page: string) {
+    return this.visitsService.getVisitsByPage(page);
   }
 
   @Get(':id')
+  @Auth()
   findOne(@Param('id') id: string) {
-    return this.visitsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateVisitDto: UpdateVisitDto) {
-    return this.visitsService.update(+id, updateVisitDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.visitsService.remove(+id);
+    return this.visitsService.findOne(id);
   }
 }
