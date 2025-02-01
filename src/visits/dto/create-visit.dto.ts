@@ -1,4 +1,4 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsDate } from 'class-validator';
 
 export class CreateVisitDto {
   @IsString()
@@ -13,4 +13,8 @@ export class CreateVisitDto {
   @IsString()
   @IsOptional()
   ip?: string;
+
+  @IsDate()
+  @IsOptional()
+  visitDate?: Date;
 }
