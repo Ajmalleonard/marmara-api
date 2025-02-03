@@ -8,6 +8,7 @@ import { BookingsModule } from './bookings/bookings.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module'; 
 import { ContactModule } from './contact/contact.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -18,6 +19,9 @@ import { ContactModule } from './contact/contact.module';
     PrismaModule,
     AuthModule,
     ContactModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
