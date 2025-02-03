@@ -21,6 +21,7 @@ async function bootstrap() {
       'https://marmaraholidays.com',
       'https://www.marmaraholidays.com',
       'https://www.marmaratravels.com',
+      'https://admin.marmaraholidays.com',
     ], // Add your frontend URLs
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
