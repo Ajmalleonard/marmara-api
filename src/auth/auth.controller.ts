@@ -52,7 +52,7 @@ export class AuthController {
     response.cookie('access_token', Data.tokes.accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production', // true in production
-      sameSite: 'lax',
+      sameSite: 'none',
 
       maxAge: 60 * 60 * 1000, // 60min
     });
@@ -60,7 +60,7 @@ export class AuthController {
     response.cookie('refresh_token', Data.tokes.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production', // true in production
-      sameSite: 'lax',
+      sameSite: 'none',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
