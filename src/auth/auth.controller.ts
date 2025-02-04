@@ -48,22 +48,7 @@ export class AuthController {
   ) {
     const Data = await this.authService.login(data);
 
-    // Set cookies with appropriate options
-    response.cookie('access_token', Data.tokes.accessToken, {
-      httpOnly: true,
-      secure: true, // true in production
-      sameSite: 'none',
-
-      maxAge: 60 * 60 * 1000, // 60min
-    });
-
-    response.cookie('refresh_token', Data.tokes.refreshToken, {
-      httpOnly: true,
-      secure: true, // true in production
-      sameSite: 'none',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
-
+  this.setTokenCookies(response, Data.tokes);
     return {
       message: 'Login successful',
       user: Data.user,
@@ -123,15 +108,15 @@ export class AuthController {
   ) {
     response.cookie('access_token', tokens.accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'none',
       maxAge: 60 * 60 * 1000, // 60 minutes
     });
 
     response.cookie('refresh_token', tokens.refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'none',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
   }

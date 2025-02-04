@@ -95,7 +95,6 @@ export class AuthService {
       user: updatedUser,
       tokes: tokens,
     };
-    console.log(Data);
 
     return Data;
   }
