@@ -122,6 +122,10 @@ export class PackagesController {
     return this.packagesService.removeBySlug(slug);
   }
 
+  @Get('slug/:slug')
+  GetbySlug(@Param('slug') slug: string) {
+    return this.packagesService.findBySlug(slug);
+  }
   @Post(':id/reviews')
   @UseGuards(JwtAuthGuard)
   addReview(
