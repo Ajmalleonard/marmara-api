@@ -16,8 +16,8 @@ export class PlacesService {
           ...placeData,
           center: {
             create: {
-              latitude: center.lat,
-              longitude: center.lng,
+              latitude: center.latitude,
+              longitude: center.longitude,
             },
           },
         },
@@ -111,8 +111,8 @@ export class PlacesService {
           ...(center && {
             center: {
               update: {
-                latitude: center.lat,
-                longitude: center.lng,
+                latitude: center.latitude,
+                longitude: center.longitude,
               },
             },
           }),

@@ -125,10 +125,10 @@ export class PackagesService {
     }
   }
 
-  async findOne(slug: string) {
+  async findOne(id: string) {
     try {
       const Packs = await this.prisma.package.findUnique({
-        where: { slug },
+        where: { id },
         include: {
           itinerary: {
             include: {
@@ -144,7 +144,7 @@ export class PackagesService {
       if (!Packs) {
         return {
           status: 'error',
-          message: `Package with ID ${slug} not found`,
+          message: `Package with ID ${id} not found`,
           error: 'NotFound',
         };
       }
@@ -162,46 +162,62 @@ export class PackagesService {
       };
     }
   }
+  async update(id: string, updatePackageDto: UpdatePackageDto) {
+    console.log('Update DTO received:', updatePackageDto);
 
-  async update(id: string, updatePacksDto: UpdatePackageDto) {
     try {
-      await this.findOne(id);
+      // Remove nested arrays from updatePackageDto.
+      // Do not try to destruct id from updatePackageDto if it doesn't exist.
+      const { itinerary, included, excluded, ...packageData } =
+        updatePackageDto;
+      console.log('Base package data:', packageData);
 
-      const { itinerary, included, excluded, ...PacksData } = updatePacksDto;
+      const dataToUpdate: any = { ...packageData };
+
+      if (itinerary) {
+        console.log('Itinerary to update:', itinerary);
+        dataToUpdate.itinerary = {
+          deleteMany: {},
+
+          create: itinerary.map((day) => {
+            console.log('Mapping itinerary day:', day);
+            return {
+              day: day.day,
+              title: day.title,
+              activities: {
+                create: day.activities.map((activity) => {
+                  console.log('Mapping itinerary activity:', activity);
+                  return { title: activity.title };
+                }),
+              },
+            };
+          }),
+        };
+      }
+
+      if (included) {
+        console.log('Included items to update:', included);
+        dataToUpdate.included = {
+          deleteMany: {},
+
+          create: included.map((item) => ({ title: item.title })),
+        };
+      }
+
+      if (excluded) {
+        console.log('Excluded items to update:', excluded);
+        dataToUpdate.excluded = {
+          deleteMany: {},
+
+          create: excluded.map((item) => ({ title: item.title })),
+        };
+      }
+
+      console.log('Data object to update:', dataToUpdate);
 
       const updatedPackage = await this.prisma.package.update({
         where: { id },
-        data: {
-          ...PacksData,
-          ...(itinerary && {
-            itinerary: {
-              deleteMany: {},
-              create: itinerary.map((day) => ({
-                day: day.day,
-                title: day.title,
-                activities: {
-                  create: day.activities,
-                },
-              })),
-            },
-          }),
-          ...(included && {
-            included: {
-              deleteMany: {},
-              create: included.map((item) => ({
-                title: item.title,
-              })),
-            },
-          }),
-          ...(excluded && {
-            excluded: {
-              deleteMany: {},
-              create: excluded.map((item) => ({
-                title: item.title,
-              })),
-            },
-          }),
-        },
+        data: dataToUpdate,
         include: {
           itinerary: {
             include: {
@@ -213,20 +229,21 @@ export class PackagesService {
         },
       });
 
+      console.log('Updated Package:', updatedPackage);
       return {
         status: 'success',
         message: 'Package updated successfully',
         data: updatedPackage,
       };
     } catch (error) {
-      return {
+      console.error('Error during package update:', error);
+      throw new BadRequestException({
         status: 'error',
         message: 'Failed to update package',
         error: error.message,
-      };
+      });
     }
   }
-
   async addReview(id: string, userId: string, rating: number, comment: string) {
     try {
       await this.findOne(id);

@@ -10,10 +10,10 @@ import { Type } from 'class-transformer';
 
 class CenterDto {
   @IsNumber()
-  lat: number;
+  latitude: number;
 
   @IsNumber()
-  lng: number;
+  longitude: number;
 }
 
 export class CreatePlaceDto {
