@@ -9,6 +9,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module'; 
 import { ContactModule } from './contact/contact.module';
 import { ConfigModule } from '@nestjs/config';
+import { ReservationModule } from './reservation/reservation.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ReservationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
