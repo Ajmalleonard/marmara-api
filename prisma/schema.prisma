@@ -1,119 +1,121 @@
 generator client {
-    provider = "prisma-client-js"
-  }
+  provider = "prisma-client-js"
+}
 
-  datasource db {
-    provider = "mongodb"
-    url      = env("DATABASE_URL")
-  }
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
 
-  model User {
-    id                        String    @id @default(auto()) @map("_id") @db.ObjectId
-    email                     String    @unique
-    password                  String
-    name                      String
-    lastLogin                 DateTime  @default(now())
-    isVerified               Boolean   @default(false)
-    isAdmin                  Boolean   @default(false)
-    resetPasswordToken       String?
-    resetPasswordExpiresAt   DateTime?
-    verificationToken        String?
-    verificationTokenExpiresAt DateTime?
-    bookings                 Booking[]
-    wishlists                Package[]  @relation(fields: [wishlistIds], references: [id])
-    wishlistIds              String[]   @db.ObjectId
-    createdAt                DateTime  @default(now())
-    updatedAt                DateTime  @updatedAt
-  }
+model User {
+  id                         String        @id @default(auto()) @map("_id") @db.ObjectId
+  email                      String        @unique
+  password                   String
+  name                       String
+  lastLogin                  DateTime      @default(now())
+  isVerified                 Boolean       @default(false)
+  isAdmin                    Boolean       @default(false)
+  resetPasswordToken         String?
+  resetPasswordExpiresAt     DateTime?
+  verificationToken          String?
+  verificationTokenExpiresAt DateTime?
+  bookings                   Booking[]
+  wishlists                  Package[]     @relation(fields: [wishlistIds], references: [id])
+  wishlistIds                String[]      @db.ObjectId
+  createdAt                  DateTime      @default(now())
+  updatedAt                  DateTime      @updatedAt
+  reservations               Reservation[] @relation("UserToReservation")
+}
 
-  model Booking {
-    id          String   @id @default(auto()) @map("_id") @db.ObjectId
-    user        User     @relation(fields: [userId], references: [id])
-    userId      String   @db.ObjectId
-    package     Package  @relation(fields: [packageId], references: [id])
-    packageId   String   @db.ObjectId
-    bookingDate DateTime @default(now())
-    status      String   @default("pending")
-    totalPrice  Float
-    adults      Int
-    children    Int?
-    infants     Int?
-    pets        Int?
-    startDate   DateTime
-    endDate     DateTime
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
-  }
+model Booking {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String   @db.ObjectId
+  package     Package  @relation(fields: [packageId], references: [id])
+  packageId   String   @db.ObjectId
+  bookingDate DateTime @default(now())
+  status      String   @default("pending")
+  totalPrice  Float
+  adults      Int
+  children    Int?
+  infants     Int?
+  pets        Int?
+  startDate   DateTime
+  endDate     DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
 
-  model Visit {
-    id        String   @id @default(auto()) @map("_id") @db.ObjectId
-    page      String
-    country   String
-    visitDate DateTime @default(now())
-    userAgent String
-    ip        String?
-  }
+model Visit {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  page      String
+  country   String
+  visitDate DateTime @default(now())
+  userAgent String
+  ip        String?
+}
 
-  model Place {
-    id        String   @id @default(auto()) @map("_id") @db.ObjectId
-    name      String
-    content   String
-    country   String
-    photos    String[]
-    isTop     Boolean  @default(false)
-    center    Cordinates? @relation("PlaceToCordinates")
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-  }
-  // Cordinates is a composite type
-  model Cordinates {
-    id        String   @id @default(auto()) @map("_id") @db.ObjectId
-    latitude  Float
-    longitude Float
-    placeId   String   @unique @db.ObjectId
-    place     Place    @relation("PlaceToCordinates", fields: [placeId], references: [id], onDelete: Cascade)
-  }
+model Place {
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  content   String
+  country   String
+  photos    String[]
+  isTop     Boolean     @default(false)
+  center    Cordinates? @relation("PlaceToCordinates")
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+// Cordinates is a composite type
+model Cordinates {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  latitude  Float
+  longitude Float
+  placeId   String @unique @db.ObjectId
+  place     Place  @relation("PlaceToCordinates", fields: [placeId], references: [id], onDelete: Cascade)
+}
 
 model Package {
-  id              String    @id @default(auto()) @map("_id") @db.ObjectId
-  name            String
-  slug            String?   @unique
-  days            Int
-  nights          Int
-  minimum_people  Int?
-  maximum_people  Int?
-  photos          String[]
-  descriptions    String
-  price           Float
-  destination     String
-  lower_price     Float?
-  featured        Boolean   @default(false)
-  
-  itinerary       Itinerary[]  @relation("PackageToItinerary")
-  included        Included[]   @relation("PackageToIncluded")
-  excluded        Excluded[]   @relation("PackageToExcluded")
-  reviews         Review[]     @relation("PackageToReview")
-  
-  isMemberOnly    Boolean   @default(false)
-  isVip          Boolean   @default(false)
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  slug           String?  @unique
+  days           Int
+  nights         Int
+  minimum_people Int?
+  maximum_people Int?
+  photos         String[]
+  descriptions   String
+  price          Float
+  destination    String
+  lower_price    Float?
+  featured       Boolean  @default(false)
 
-  likes          Int       @default(0)
-  likedBy        String[]  @db.ObjectId
-  
-  bookings       Booking[]
-  users          User[]    @relation(fields: [userIds], references: [id])
-  userIds        String[]  @db.ObjectId
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  itinerary Itinerary[] @relation("PackageToItinerary")
+  included  Included[]  @relation("PackageToIncluded")
+  excluded  Excluded[]  @relation("PackageToExcluded")
+  reviews   Review[]    @relation("PackageToReview")
+
+  isMemberOnly Boolean @default(false)
+  isVip        Boolean @default(false)
+
+  likes   Int      @default(0)
+  likedBy String[] @db.ObjectId
+
+  bookings  Booking[]
+  users     User[]    @relation(fields: [userIds], references: [id])
+  userIds   String[]  @db.ObjectId
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Itinerary {
-  id          String     @id @default(auto()) @map("_id") @db.ObjectId
-  day         Int
-  title       String
-  activities  Activity[] @relation("ItineraryToActivity")
-  package     Package    @relation("PackageToItinerary", fields: [packageId], references: [id], onDelete: Cascade)
-  packageId   String     @db.ObjectId
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  day        Int
+  title      String
+  activities Activity[] @relation("ItineraryToActivity")
+  package    Package    @relation("PackageToItinerary", fields: [packageId], references: [id], onDelete: Cascade)
+  packageId  String     @db.ObjectId
 }
 
 model Activity {
@@ -124,25 +126,49 @@ model Activity {
 }
 
 model Included {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  package     Package  @relation("PackageToIncluded", fields: [packageId], references: [id], onDelete: Cascade)
-  packageId   String   @db.ObjectId
-
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  package   Package @relation("PackageToIncluded", fields: [packageId], references: [id], onDelete: Cascade)
+  packageId String  @db.ObjectId
 }
 
 model Excluded {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  package     Package  @relation("PackageToExcluded", fields: [packageId], references: [id], onDelete: Cascade)
-  packageId   String   @db.ObjectId
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  package   Package @relation("PackageToExcluded", fields: [packageId], references: [id], onDelete: Cascade)
+  packageId String  @db.ObjectId
 }
 
 model Review {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  rating      Float
-  comment     String
-  date        DateTime @default(now())
-  package     Package  @relation("PackageToReview", fields: [packageId], references: [id], onDelete: Cascade)
-  packageId   String   @db.ObjectId
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  rating    Float
+  comment   String
+  date      DateTime @default(now())
+  package   Package  @relation("PackageToReview", fields: [packageId], references: [id], onDelete: Cascade)
+  packageId String   @db.ObjectId
+}
+
+model Reservation {
+  id         String            @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String            @db.ObjectId
+  location   String
+  startDate  String
+  returnDate String
+  adults     Int
+  children   Int?
+  rooms      Int
+  name       String?
+  email      String
+  status     ReservationStatus @default(PENDING)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  user       User              @relation("UserToReservation", fields: [userId], references: [id])
+
+  @@map("reservations")
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELED
 }
