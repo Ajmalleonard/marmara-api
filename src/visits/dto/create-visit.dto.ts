@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsDate } from 'class-validator';
+import { IsDate, IsOptional, IsString } from 'class-validator';
 
 export class CreateVisitDto {
   @IsString()
@@ -8,6 +8,7 @@ export class CreateVisitDto {
   country: string;
 
   @IsString()
+  @IsOptional()
   userAgent: string;
 
   @IsString()
