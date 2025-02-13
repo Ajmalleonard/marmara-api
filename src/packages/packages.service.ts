@@ -82,7 +82,7 @@ export class PackagesService {
         ...rest
       } = query;
 
-      let where: any = { ...rest };
+      const where: any = { ...rest };
 
       if (featured) where.featured = featured === 'true';
       if (destination) where.destination = destination;
@@ -457,11 +457,121 @@ export class PackagesService {
     const pack = await this.findBySlug(slug);
     return this.remove(pack.id);
   }
+  // Add these methods to PackagesService class
+
+  async getLikeStatus(packageId: string, userEmail: string) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { email: userEmail },
+      });
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      const pack = await this.prisma.package.findUnique({
+        where: { id: packageId },
+        select: {
+          likes: true,
+          likedBy: true,
+        },
+      });
+
+      if (!pack) {
+        throw new NotFoundException('Package not found');
+      }
+
+      return {
+        isLiked: pack.likedBy.includes(user.id),
+        likes: pack.likes,
+      };
+    } catch (error) {
+      throw new BadRequestException(
+        `Failed to get like status: ${error.message}`,
+      );
+    }
+  }
+
+  async like(packageId: string, userEmail: string) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { email: userEmail },
+      });
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      const pack = await this.prisma.package.findUnique({
+        where: { id: packageId },
+      });
+
+      if (!pack) {
+        throw new NotFoundException('Package not found');
+      }
+
+      const updatedPackage = await this.prisma.package.update({
+        where: { id: packageId },
+        data: {
+          likes: pack.likes + 1,
+          likedBy: {
+            push: user.id,
+          },
+        },
+      });
+
+      return {
+        message: 'Package liked successfully',
+        likes: updatedPackage.likes,
+      };
+    } catch (error) {
+      throw new BadRequestException(`Failed to like package: ${error.message}`);
+    }
+  }
+
+  async unlike(packageId: string, userEmail: string) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { email: userEmail },
+      });
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      const pack = await this.prisma.package.findUnique({
+        where: { id: packageId },
+      });
+
+      if (!pack) {
+        throw new NotFoundException('Package not found');
+      }
+
+      const updatedPackage = await this.prisma.package.update({
+        where: { id: packageId },
+        data: {
+          likes: Math.max(0, pack.likes - 1),
+          likedBy: {
+            set: pack.likedBy.filter((id) => id !== user.id),
+          },
+        },
+      });
+
+      return {
+        message: 'Package unliked successfully',
+        likes: updatedPackage.likes,
+      };
+    } catch (error) {
+      throw new BadRequestException(
+        `Failed to unlike package: ${error.message}`,
+      );
+    }
+  }
 
   async remove(id: string) {
     // Start an interactive transaction
     console.log('Hits on delete package');
-    return await this.prisma.$transaction(async (tx) => {
+    return this.prisma.$transaction(async (tx) => {
       // Check if package exists
       const pack = await tx.package.findUnique({
         where: { id },
