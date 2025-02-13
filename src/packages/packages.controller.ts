@@ -1,14 +1,14 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
-  Query,
   ForbiddenException,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
 import { PackagesService } from './packages.service';
 import { CreatePackageDto } from './dto/create-package.dto';
@@ -52,7 +52,7 @@ export class PackagesController {
 
   @Get('vip')
   @UseGuards(JwtAuthGuard)
-  getVipPackages(@GetUser() user: User) {
+  getVipPackages() {
     return this.packagesService.getVipPackages();
   }
 
@@ -96,11 +96,7 @@ export class PackagesController {
 
   @Patch(':id')
   @Auth()
-  update(
-    @Param('id') id: string,
-    @Body() updatePackageDto: UpdatePackageDto,
-    @GetUser() user: User,
-  ) {
+  update(@Param('id') id: string, @Body() updatePackageDto: UpdatePackageDto) {
     return this.packagesService.update(id, updatePackageDto);
   }
 
@@ -141,9 +137,21 @@ export class PackagesController {
     );
   }
 
+  @Get(':id/likeStatus')
+  @UseGuards(JwtAuthGuard)
+  async getLikeStatus(@Param('id') id: string, @GetUser() user: User) {
+    return this.packagesService.getLikeStatus(id, user.email);
+  }
+
   @Post(':id/like')
   @UseGuards(JwtAuthGuard)
-  toggleLike(@Param('id') id: string, @GetUser() user: User) {
-    return this.packagesService.toggleLike(id, user.id);
+  async likePackage(@Param('id') id: string, @GetUser() user: User) {
+    return this.packagesService.like(id, user.email);
+  }
+
+  @Post(':id/unlike')
+  @UseGuards(JwtAuthGuard)
+  async unlikePackage(@Param('id') id: string, @GetUser() user: User) {
+    return this.packagesService.unlike(id, user.email);
   }
 }
