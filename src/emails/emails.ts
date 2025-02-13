@@ -1,12 +1,12 @@
 import { CreateContactDto } from '@/contact/dto/create-contact.dto';
 import {
+  BOOKING_CONFIRMATION_EMAIL_TEMPLATE,
+  feedback_Mail,
+  NEW_BOOKING_EMAIL_TEMPLATE,
   PASSWORD_RESET_REQUEST_TEMPLATE,
   PASSWORD_RESET_SUCCESS_TEMPLATE,
   VERIFICATION_EMAIL_TEMPLATE,
   WELCOME_EMAIL_TEMPATE,
-  BOOKING_CONFIRMATION_EMAIL_TEMPLATE,
-  NEW_BOOKING_EMAIL_TEMPLATE,
-  feedback_Mail,
 } from './emailTemplates';
 import { mailtrapClient, sender } from './mailtrap.config';
 
@@ -161,10 +161,7 @@ export const sendBookingConfirmationEmail = async (email, bookingData) => {
 export const sendAdminBookingEmail = async (bookingData) => {
   const recipient = [
     {
-      email: process.env.Developer,
-    },
-    {
-      email: process.env.Admin,
+      email: 'ajmalmaker@icloud.com',
     },
   ];
 
@@ -172,19 +169,19 @@ export const sendAdminBookingEmail = async (bookingData) => {
     let emailContent = NEW_BOOKING_EMAIL_TEMPLATE;
 
     emailContent = emailContent.replace('{name}', bookingData.name);
-    emailContent = emailContent.replace('{id}', bookingData.packageId);
     emailContent = emailContent.replace(
       '{packageName}',
       bookingData.packageName,
     );
     emailContent = emailContent.replace('{startDate}', bookingData.startDate);
-    emailContent = emailContent.replace('{email}', bookingData.email);
     emailContent = emailContent.replace('{endDate}', bookingData.endDate);
     emailContent = emailContent.replace('{adults}', bookingData.adults);
     emailContent = emailContent.replace('{children}', bookingData.children);
-    emailContent = emailContent.replace('{Infants}', bookingData.infants);
+    emailContent = emailContent.replace('{infants}', bookingData.infants);
     emailContent = emailContent.replace('{pets}', bookingData.pets);
     emailContent = emailContent.replace('{price}', bookingData.price);
+    emailContent = emailContent.replace('{id}', bookingData.packageId);
+    emailContent = emailContent.replace('{email}', bookingData.email);
 
     const response = await mailtrapClient.send({
       from: sender,
@@ -211,7 +208,7 @@ export const sendAdminContactEmail = async (data: CreateContactDto) => {
   ];
 
   // Build your custom template by inserting contact detail fields
-  let htmlTemplate = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  const htmlTemplate = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html dir="ltr" lang="en">
   <head>
@@ -256,7 +253,7 @@ export const sendAdminContactEmail = async (data: CreateContactDto) => {
                       alt="Marmara Logo"
                       height="100"
                       src="https://marmaraholidaysproduction.s3.eu-north-1.amazonaws.com/logo.svg"
-                      style="display:bl''''''''' == = =  ==     [= [[[[[[[[[ock;outline:none;border:none;text-decoration:none;margin-bottom:24px"
+                      style="display:block;outline:none;border:none;text-decoration:none;margin-bottom:24px"
                     />
                     <hr
                        /   style="width:100%;border:none;border-top:1px solid #e6ebf1;margin:20px 0"
@@ -367,7 +364,7 @@ export const sendClientContactConfirmationEmail = async (
 ) => {
   const recipient = [{ email }];
 
-  let htmlTemplate = `<!DOCTYPE html>
+  const htmlTemplate = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
