@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, Req } from '@nestjs/common';
+import { Request } from 'express';
 import { VisitsService } from './visits.service';
 import { CreateVisitDto } from './dto/create-visit.dto';
 import { VisitQueryDto } from './dto/visit-query.dto';
@@ -9,8 +10,8 @@ export class VisitsController {
   constructor(private readonly visitsService: VisitsService) {}
 
   @Post()
-  create(@Body() createVisitDto: CreateVisitDto) {
-    return this.visitsService.create(createVisitDto);
+  create(@Body() createVisitDto: CreateVisitDto, @Req() req: Request) {
+    return this.visitsService.create(createVisitDto, req);
   }
 
   @Get()
