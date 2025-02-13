@@ -1,19 +1,22 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateVisitDto } from './dto/create-visit.dto';
-import { COUNTRIES, getContinent } from './utils/country-data';
-import { SortOrder, VisitQueryDto } from './dto/visit-query.dto';
+import { getContinent } from './utils/country-data';
+import { VisitQueryDto } from './dto/visit-query.dto';
+import { Request } from 'express';
 
 @Injectable()
 export class VisitsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createVisitDto: CreateVisitDto) {
+  async create(createVisitDto: CreateVisitDto, req: Request) {
+    console.log(createVisitDto);
     try {
       const visit = await this.prisma.visit.create({
         data: {
           ...createVisitDto,
           visitDate: createVisitDto.visitDate || new Date(),
+          userAgent: req.headers['user-agent'] || 'Unknown',
         },
       });
 
