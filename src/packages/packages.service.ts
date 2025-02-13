@@ -12,6 +12,7 @@ export class PackagesService {
   constructor(private prisma: PrismaService) {}
 
   async create(createPackageDto: CreatePackageDto) {
+    console.log(CreatePackageDto);
     try {
       const { itinerary, included, excluded, ...packageData } =
         createPackageDto;
