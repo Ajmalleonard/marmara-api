@@ -48,7 +48,7 @@ export class AuthController {
   ) {
     const Data = await this.authService.login(data);
 
-  this.setTokenCookies(response, Data.tokes);
+    this.setTokenCookies(response, Data.tokes);
     return {
       message: 'Login successful',
       user: Data.user,
@@ -126,3 +126,4 @@ export class AuthController {
     response.clearCookie('refresh_token');
   }
 }
+
