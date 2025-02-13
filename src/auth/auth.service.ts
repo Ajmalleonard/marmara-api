@@ -4,7 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '@/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { User } from '@prisma/client';
 import { CreateUserDto } from './dto/create-auth.dto';
@@ -15,7 +15,7 @@ import {
   sendWelcomeEmail,
   sendPasswordResetEmail,
   sendResetSuccessEmail,
-} from '../emails/emails';
+} from '@/emails/emails';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
@@ -165,7 +165,7 @@ export class AuthService {
       where: { id: user.id },
       data: {
         resetPasswordToken: resetToken,
-        resetPasswordExpiresAt: new Date(Date.now() + 1 * 60 * 60 * 1000),
+        resetPasswordExpiresAt: new Date(Date.now() + 60 * 60 * 1000),
       },
     });
 
