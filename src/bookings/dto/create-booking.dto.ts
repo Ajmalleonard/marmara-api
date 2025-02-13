@@ -1,10 +1,10 @@
 import {
   IsDate,
-  IsNumber,
-  IsString,
-  IsOptional,
-  Min,
   IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -28,17 +28,14 @@ export class CreateBookingDto {
 
   @IsNumber()
   @IsOptional()
-  @Min(0)
   children?: number;
 
   @IsNumber()
   @IsOptional()
-  @Min(0)
   infants?: number;
 
   @IsNumber()
   @IsOptional()
-  @Min(0)
   pets?: number;
 
   @Type(() => Date)
