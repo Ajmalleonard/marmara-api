@@ -1,15 +1,15 @@
 import {
+  ForbiddenException,
   Injectable,
   NotFoundException,
-  ForbiddenException,
 } from '@nestjs/common';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBooking } from './dto/update-booking.dto';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '@/prisma/prisma.service';
 import {
-  sendBookingConfirmationEmail,
   sendAdminBookingEmail,
-} from '../emails/emails';
+  sendBookingConfirmationEmail,
+} from '@/emails/emails';
 
 @Injectable()
 export class BookingsService {
@@ -29,6 +29,7 @@ export class BookingsService {
         ...createBookingDto,
         userId,
         status: 'pending',
+        bookingDate: new Date(), // Tracks when the booking was made
       },
       include: {
         user: true,
@@ -53,7 +54,7 @@ export class BookingsService {
     await sendBookingConfirmationEmail(booking.user.email, bookingData);
     await sendAdminBookingEmail(bookingData);
 
-    return booking;
+    return bookingData;
   }
 
   async findAll(userId: string, isAdmin: boolean) {
