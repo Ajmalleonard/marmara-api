@@ -12,6 +12,7 @@ import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBooking } from './dto/update-booking.dto';
 import { GetUser } from '../decorators/Auth.decorator';
 import { User } from '@prisma/client';
+import { Auth } from '@/decorators/Auth.decorator';
 
 @Controller('bookings')
 export class BookingsController {
@@ -27,7 +28,9 @@ export class BookingsController {
     );
   }
   @Get()
+  @Auth()
   findAll(@GetUser() user: User) {
+    console.log(user);
     return this.bookingsService.findAll(user.id, user.isAdmin);
   }
 
