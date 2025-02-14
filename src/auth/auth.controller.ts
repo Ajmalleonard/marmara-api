@@ -7,6 +7,7 @@ import {
   Res,
   Req,
   UnauthorizedException,
+  Delete,
 } from '@nestjs/common';
 import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
@@ -28,7 +29,10 @@ export class AuthController {
     const tokens = await this.authService.register(data);
 
     this.setTokenCookies(response, tokens);
-    return { message: 'Registration successful' };
+    return {
+      status: 'success',
+      message: 'Verification code sent  successfuly ',
+    };
   }
 
   @Get()
@@ -38,6 +42,14 @@ export class AuthController {
     return {
       message: 'success',
       users,
+    };
+  }
+  @Delete('delete-user/:userId')
+  async DeleteUser(@Param('userId') userId: string) {
+    await this.authService.deleteUser(userId);
+    return {
+      status: 'success',
+      message: 'User deleted successfully',
     };
   }
 
