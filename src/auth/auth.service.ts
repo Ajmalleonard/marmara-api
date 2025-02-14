@@ -128,6 +128,30 @@ export class AuthService {
     });
   }
 
+  async deleteUser(userId: string) {
+    try {
+      await this.prisma.booking.deleteMany({
+        where: { userId: userId },
+      });
+
+      // Delete all reservations for this user
+      await this.prisma.reservation.deleteMany({
+        where: { userId: userId },
+      });
+
+      const deletedUser = await this.prisma.user.delete({
+        where: {
+          id: userId,
+        },
+      });
+
+      return { message: 'User deleted successfully' };
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      throw new Error(`Failed to delete user: ${error.message}`);
+    }
+  }
+
   async verifyEmail(token: string) {
     const user = await this.prisma.user.findFirst({
       where: {
