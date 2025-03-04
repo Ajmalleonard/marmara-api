@@ -15,43 +15,36 @@ export class VisitsController {
   }
 
   @Get()
-  @Auth()
   findAll(@Query() query: VisitQueryDto) {
     return this.visitsService.findAll(query);
   }
 
   @Get('stats')
-  @Auth()
   getVisitStats() {
     return this.visitsService.getVisitStats();
   }
 
   @Get('country/:country')
-  @Auth()
   getVisitsByCountry(@Param('country') country: string) {
     return this.visitsService.findAll({ country });
   }
 
   @Get('continentchart')
-  @Auth()
   getStatisticsContinentCount() {
     return this.visitsService.getTopContinentStats();
   }
 
   @Get('continent/:continent')
-  @Auth()
   getVisitsByContinent(@Param('continent') continent: string) {
     return this.visitsService.findAll({ continent });
   }
 
   @Get('page/:page')
-  @Auth()
   getVisitsByPage(@Param('page') page: string) {
     return this.visitsService.getVisitsByPage(page);
   }
 
   @Get(':id')
-  @Auth()
   findOne(@Param('id') id: string) {
     return this.visitsService.findOne(id);
   }
