@@ -63,6 +63,7 @@ export class AuthController {
     this.setTokenCookies(response, Data.tokes);
     return {
       message: 'Login successful',
+      status: 200,
       user: Data.user,
     };
   }
