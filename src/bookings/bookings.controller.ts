@@ -20,7 +20,6 @@ export class BookingsController {
 
   @Post()
   create(@Body() createBookingDto: CreateBookingDto) {
-    console.log(createBookingDto);
     console.log(createBookingDto.userId);
     return this.bookingsService.create(
       createBookingDto,
@@ -28,14 +27,13 @@ export class BookingsController {
     );
   }
   @Get()
-  @Auth()
   findAll(@GetUser() user: User) {
-    console.log(user);
     return this.bookingsService.findAll(user.id, user.isAdmin);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string, @GetUser() user: User) {
+    console.log(user);
     return this.bookingsService.findOne(id, user.id, user.isAdmin);
   }
 
