@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePlaceDto } from './dto/create-place.dto';
 import { UpdatePlaceDto } from './dto/update-place.dto';
+import { ReplacePhotoDto } from '@/globals/dto/replacephoto.dto';
 
 @Injectable()
 export class PlacesService {
@@ -151,6 +152,41 @@ export class PlacesService {
       return {
         status: 'error',
         message: 'Failed to delete place',
+        error: error.message,
+      };
+    }
+  }
+
+  async replacePhoto(id: string, { oldUrl, newUrl }: ReplacePhotoDto) {
+    try {
+      const place = await this.prisma.place.findUnique({
+        where: { id },
+        select: { photos: true },
+      });
+
+      if (!place) {
+        throw new NotFoundException(`Place with ID ${id} not found`);
+      }
+
+      const updatedPhotos = place.photos.map((photo) =>
+        photo === oldUrl ? newUrl : photo,
+      );
+
+      const updatedPlace = await this.prisma.place.update({
+        where: { id },
+        data: { photos: updatedPhotos },
+        include: { center: true },
+      });
+
+      return {
+        status: 'success',
+        message: 'Photo replaced successfully',
+        data: updatedPlace,
+      };
+    } catch (error) {
+      return {
+        status: 'error',
+        message: 'Failed to replace photo',
         error: error.message,
       };
     }
