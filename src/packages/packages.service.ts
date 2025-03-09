@@ -6,6 +6,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePackageDto } from './dto/create-package.dto';
 import { UpdatePackageDto } from './dto/update-package.dto';
+import { ReplacePhotoDto } from '@/globals/dto/replacephoto.dto';
 
 @Injectable()
 export class PackagesService {
@@ -625,5 +626,47 @@ export class PackagesService {
         data: deletedPackage,
       };
     });
+  }
+  async replacePhoto(id: string, { oldUrl, newUrl }: ReplacePhotoDto) {
+    try {
+      const pack = await this.prisma.package.findUnique({
+        where: { id },
+        select: { photos: true },
+      });
+
+      if (!pack) {
+        throw new NotFoundException(`Package with ID ${id} not found`);
+      }
+
+      const updatedPhotos = pack.photos.map((photo) =>
+        photo === oldUrl ? newUrl : photo,
+      );
+
+      const updatedPackage = await this.prisma.package.update({
+        where: { id },
+        data: { photos: updatedPhotos },
+        include: {
+          itinerary: {
+            include: {
+              activities: true,
+            },
+          },
+          included: true,
+          excluded: true,
+        },
+      });
+
+      return {
+        status: 'success',
+        message: 'Photo replaced successfully',
+        data: updatedPackage,
+      };
+    } catch (error) {
+      return {
+        status: 'error',
+        message: 'Failed to replace photo',
+        error: error.message,
+      };
+    }
   }
 }
