@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -17,6 +18,7 @@ import { JwtAuthGuard } from '../guard/jwt-auth.guard';
 import { Auth, GetUser } from '../decorators/Auth.decorator';
 import { User } from '@prisma/client';
 import slugify from 'slugify';
+import { ReplacePhotoDto } from '@/globals/dto/replacephoto.dto';
 
 @Controller('packages')
 export class PackagesController {
@@ -153,5 +155,13 @@ export class PackagesController {
   @UseGuards(JwtAuthGuard)
   async unlikePackage(@Param('id') id: string, @GetUser() user: User) {
     return this.packagesService.unlike(id, user.email);
+  }
+
+  @Put(':id/replace-photo')
+  async replacePhoto(
+    @Param('id') id: string,
+    @Body() replacePhotoDto: ReplacePhotoDto,
+  ) {
+    return this.packagesService.replacePhoto(id, replacePhotoDto);
   }
 }
