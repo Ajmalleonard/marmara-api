@@ -8,12 +8,14 @@ import {
   Delete,
   Query,
   ForbiddenException,
+  Put,
 } from '@nestjs/common';
 import { PlacesService } from './places.service';
 import { CreatePlaceDto } from './dto/create-place.dto';
 import { UpdatePlaceDto } from './dto/update-place.dto';
 import { Auth, GetUser } from '../decorators/Auth.decorator';
 import { User } from '@prisma/client';
+import { ReplacePhotoDto } from '@/globals/dto/replacephoto.dto';
 
 @Controller('places')
 export class PlacesController {
@@ -59,6 +61,14 @@ export class PlacesController {
       throw new ForbiddenException('Only admins can update places');
     }
     return this.placesService.update(id, updatePlaceDto);
+  }
+
+  @Put(':id/replace-photo')
+  async replacePhoto(
+    @Param('id') id: string,
+    @Body() replacePhotoDto: ReplacePhotoDto,
+  ) {
+    return this.placesService.replacePhoto(id, replacePhotoDto);
   }
 
   @Delete(':id')
