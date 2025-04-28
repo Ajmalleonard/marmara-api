@@ -1,0 +1,137 @@
+syntax = "proto3";
+
+package shop;
+
+service ShopService {
+  // Product operations
+  rpc GetProducts (GetProductsRequest) returns (GetProductsResponse);
+  rpc GetProduct (GetProductRequest) returns (GetProductResponse);
+  rpc CreateProduct (CreateProductRequest) returns (CreateProductResponse);
+  
+  // Cart operations
+  rpc AddToCart (AddToCartRequest) returns (CartResponse);
+  rpc RemoveFromCart (RemoveFromCartRequest) returns (CartResponse);
+  rpc GetCart (GetCartRequest) returns (CartResponse);
+  
+  // Wishlist operations
+  rpc AddToWishlist (AddToWishlistRequest) returns (WishlistResponse);
+  rpc RemoveFromWishlist (RemoveFromWishlistRequest) returns (WishlistResponse);
+  rpc GetWishlist (GetWishlistRequest) returns (WishlistResponse);
+}
+
+message GetProductsRequest {}
+
+message GetProductsResponse {
+  repeated Product products = 1;
+  string error = 2;
+}
+
+message GetProductRequest {
+  string id = 1;
+}
+
+message GetProductResponse {
+  Product product = 1;
+  string error = 2;
+}
+
+message CreateProductRequest {
+  string name = 1;
+  string description = 2;
+  float price = 3;
+  string image_url = 4;
+  string category = 5;
+  float discount = 6;
+  string brand = 7;
+}
+
+message CreateProductResponse {
+  Product product = 1;
+  string error = 2;
+}
+
+message Product {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  float price = 4;
+  string image_url = 5;
+  string category = 6;
+  float discount = 7;
+  string brand = 8;
+  string created_at = 9;
+  string updated_at = 10;
+}
+
+// Cart related messages
+message AddToCartRequest {
+  string product_id = 1;
+  int32 quantity = 2;
+  string session_token = 3;
+  string user_id = 4;
+}
+
+message RemoveFromCartRequest {
+  string product_id = 1;
+  string session_token = 2;
+  string user_id = 3;
+}
+
+message GetCartRequest {
+  string session_token = 1;
+  string user_id = 2;
+}
+
+message CartResponse {
+  Cart cart = 1;
+  string error = 2;
+}
+
+message Cart {
+  string id = 1;
+  repeated CartItem items = 2;
+  float total = 3;
+  string user_id = 4;
+  string created_at = 5;
+  string updated_at = 6;
+}
+
+message CartItem {
+  string id = 1;
+  Product product = 2;
+  int32 quantity = 3;
+  float price = 4;
+  string created_at = 5;
+  string updated_at = 6;
+}
+
+// Wishlist related messages
+message AddToWishlistRequest {
+  string product_id = 1;
+  string session_token = 2;
+  string user_id = 3;
+}
+
+message RemoveFromWishlistRequest {
+  string product_id = 1;
+  string session_token = 2;
+  string user_id = 3;
+}
+
+message GetWishlistRequest {
+  string session_token = 1;
+  string user_id = 2;
+}
+
+message WishlistResponse {
+  Wishlist wishlist = 1;
+  string error = 2;
+}
+
+message Wishlist {
+  string id = 1;
+  repeated Product products = 2;
+  string user_id = 3;
+  string created_at = 4;
+  string updated_at = 5;
+} 

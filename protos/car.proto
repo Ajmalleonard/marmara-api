@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+package car;
+
+service CarService {
+  rpc GetCars (GetCarsRequest) returns (GetCarsResponse);
+  rpc GetCar (GetCarRequest) returns (GetCarResponse);
+  rpc CreateCar (CreateCarRequest) returns (CreateCarResponse);
+  rpc UpdateCar (UpdateCarRequest) returns (UpdateCarResponse);
+  rpc DeleteCar (DeleteCarRequest) returns (DeleteCarResponse);
+  rpc GetUserCars (GetUserCarsRequest) returns (GetCarsResponse);
+}
+
+message GetCarsRequest {
+  string filter = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+
+message GetCarsResponse {
+  repeated Car cars = 1;
+  int32 total = 2;
+  string error = 3;
+}
+
+message GetCarRequest {
+  string id = 1;
+}
+
+message GetCarResponse {
+  Car car = 1;
+  string error = 2;
+}
+
+message CreateCarRequest {
+  string make = 1;
+  string model = 2;
+  int32 year = 3;
+  string color = 4;
+  string vin = 5;
+  string plate_number = 6;
+  string user_id = 7;
+  CarFeatures features = 8;
+}
+
+message UpdateCarRequest {
+  string id = 1;
+  string make = 2;
+  string model = 3;
+  int32 year = 4;
+  string color = 5;
+  string vin = 6;
+  string plate_number = 7;
+  CarFeatures features = 8;
+}
+
+message DeleteCarRequest {
+  string id = 1;
+  string user_id = 2;
+}
+
+message DeleteCarResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+message GetUserCarsRequest {
+  string user_id = 1;
+}
+
+message CreateCarResponse {
+  Car car = 1;
+  string error = 2;
+}
+
+message UpdateCarResponse {
+  Car car = 1;
+  string error = 2;
+}
+
+message Car {
+  string id = 1;
+  string make = 2;
+  string model = 3;
+  int32 year = 4;
+  string color = 5;
+  string vin = 6;
+  string plate_number = 7;
+  string user_id = 8;
+  CarFeatures features = 9;
+  string created_at = 10;
+  string updated_at = 11;
+}
+
+message CarFeatures {
+  bool air_conditioning = 1;
+  bool power_steering = 2;
+  bool power_windows = 3;
+  bool abs = 4;
+  bool sunroof = 5;
+  int32 seats = 6;
+  string fuel_type = 7;
+  string transmission = 8;
+} 

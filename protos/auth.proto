@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+package auth;
+
+service AuthService {
+  rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse);
+  rpc CheckRole (CheckRoleRequest) returns (CheckRoleResponse);
+  rpc CheckOwnership (CheckOwnershipRequest) returns (CheckOwnershipResponse);
+  rpc Login (LoginRequest) returns (LoginResponse);
+  rpc Register (RegisterRequest) returns (RegisterResponse);
+  rpc ForgotPassword (ForgotPasswordRequest) returns (ForgotPasswordResponse);
+  rpc ResetPassword (ResetPasswordRequest) returns (ResetPasswordResponse);
+  rpc VerifyEmail (VerifyEmailRequest) returns (VerifyEmailResponse);
+}
+
+message ValidateTokenRequest {
+  string token = 1;
+}
+
+message ValidateTokenResponse {
+  User user = 1;
+  string error = 2;
+}
+
+message CheckRoleRequest {
+  string user_id = 1;
+  repeated string roles = 2;
+}
+
+message CheckRoleResponse {
+  bool has_role = 1;
+  string error = 2;
+}
+
+message CheckOwnershipRequest {
+  string user_id = 1;
+  string resource_id = 2;
+  string resource_type = 3;
+}
+
+message CheckOwnershipResponse {
+  bool is_owner = 1;
+  string error = 2;
+}
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string token = 1;
+  User user = 2;
+  string error = 3;
+}
+
+message RegisterRequest {
+  string email = 1;
+  string password = 2;
+  string name = 3;
+}
+
+message RegisterResponse {
+  User user = 1;
+  string error = 2;
+}
+
+message ForgotPasswordRequest {
+  string email = 1;
+}
+
+message ForgotPasswordResponse {
+  string message = 1;
+  string error = 2;
+}
+
+message ResetPasswordRequest {
+  string token = 1;
+  string password = 2;
+}
+
+message ResetPasswordResponse {
+  string message = 1;
+  string error = 2;
+}
+
+message VerifyEmailRequest {
+  string code = 1;
+}
+
+message VerifyEmailResponse {
+  User user = 1;
+  string message = 2;
+  string error = 3;
+}
+
+message User {
+  string id = 1;
+  string email = 2;
+  string name = 3;
+  string role = 4;
+  string created_at = 5;
+  string updated_at = 6;
+}
