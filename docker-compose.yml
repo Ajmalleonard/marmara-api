@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  car-service:
+    build: ./services/car-service
+    ports:
+      - "3001:3001"
+    environment:
+      - DB_HOST=car-db
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=car_service
+      - FRONTEND_URL=${FRONTEND_URL}
+    depends_on:
+      - car-db
+
+  shop-service:
+    build: ./services/shop-service
+    ports:
+      - "3002:3002"
+    environment:
+      - DATABASE_URL=${AIVEN_DB_URL}
+      - FRONTEND_URL=${FRONTEND_URL}
+
+  car-db:
+    image: postgres:14-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=car_service
+    volumes:
+      - car-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  api-gateway:
+    build: ./gateway
+    ports:
+      - "4000:4000"
+    environment:
+      - CAR_SERVICE_URL=http://car-service:3001
+      - SHOP_SERVICE_URL=http://shop-service:3002
+    volumes:
+      - ./protos:/usr/src/protos
+    depends_on:
+      - car-service
+      - shop-service
+
+volumes:
+  car-data:
