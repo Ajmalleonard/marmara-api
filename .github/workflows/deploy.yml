@@ -44,11 +44,9 @@ jobs:
             
             # Generate Prisma client
             echo "🔧 Generating Prisma client..."
-            npx prisma db pull
+            npx prisma db push
             
-            # Run database migrations
-            echo "🗃️ Running database migrations..."
-            npx prisma migrate deploy
+            
             
             # Build application
             echo "🏗️ Building application..."
@@ -56,9 +54,9 @@ jobs:
             
             # Restart PM2 process
             echo "🔄 Restarting PM2 process..."
-            pm2 restart auth-service
+            pm2 restart marmara-api
             
-            echo "🎉 Auth Service deployment completed successfully!"
+            echo "🎉 Marmara APIs Server deployment completed successfully!"
 
   notify:
     name: Send Deployment Status
@@ -77,13 +75,13 @@ jobs:
       - name: Send Success Message
         if: needs.deploy.result == 'success'
         run: |
-          MSG="Auth Service Deployed Successfully! 🎉 Details: Commit ${GITHUB_SHA::7} - ${GITHUB_REF_NAME} by ${GITHUB_ACTOR}. Service is now live!"
+          MSG="Marmara APIs Server Deployed Successfully! 🎉 Details: Commit ${GITHUB_SHA::7} - ${GITHUB_REF_NAME} by ${GITHUB_ACTOR}. Service is now live!"
           ENCODED_MSG=$(echo "$MSG" | perl -p -e 's/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg')
           curl -s "https://api.callmebot.com/whatsapp.php?phone=255710097350&text=$ENCODED_MSG&apikey=6668493"
 
       - name: Send Failure Message
         if: needs.deploy.result == 'failure'
         run: |
-          MSG="Auth Service Deployment Failed! ❌ Details: Commit ${GITHUB_SHA::7} - ${GITHUB_REF_NAME} by ${GITHUB_ACTOR}. Check GitHub Actions logs."
+          MSG="Marmara APIs Server Deployment Failed! ❌ Details: Commit ${GITHUB_SHA::7} - ${GITHUB_REF_NAME} by ${GITHUB_ACTOR}. Check GitHub Actions logs."
           ENCODED_MSG=$(echo "$MSG" | perl -p -e 's/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg')
           curl -s "https://api.callmebot.com/whatsapp.php?phone=255710097350&text=$ENCODED_MSG&apikey=6668493"
