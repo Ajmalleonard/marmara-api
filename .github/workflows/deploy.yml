@@ -1,4 +1,4 @@
-name: Deploy Auth Service
+name: Deploy Marmara APIs Server
 
 on:
   push:
