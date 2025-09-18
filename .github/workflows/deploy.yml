@@ -21,7 +21,7 @@ jobs:
           timeout: 60s
           command_timeout: 10m
           script: |
-            echo "🚀 Starting Auth Service CI..."
+            echo "🚀 Starting Marmara APIs Server CI..."
             
             # Install bun if not available
             if [ ! -f ~/.bun/bin/bun ]; then
