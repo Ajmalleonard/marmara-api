@@ -1,0 +1,121 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Car {
+  airCon: Boolean!
+  engine: String!
+  features: [String!]!
+  id: ID!
+  image: String!
+  name: String!
+  price: Float!
+  seats: Int!
+  transmission: String!
+  type: String!
+}
+
+type CarBooking {
+  createdAt: DateTime!
+  dropoffLocation: String!
+  email: String!
+  fullName: String!
+  id: ID!
+  pickupDate: String!
+  pickupLocation: String!
+  returnDate: String!
+  specialRequests: String
+  status: String!
+  vehicleType: String!
+  withDriver: Boolean!
+}
+
+input CreateCarBookingInput {
+  dropoffLocation: String!
+  email: String!
+  fullName: String!
+  pickupDate: String!
+  pickupLocation: String!
+  returnDate: String!
+  specialRequests: String
+  vehicleType: String!
+  withDriver: Boolean!
+}
+
+input CreateVisaRequestInput {
+  additionalInfo: String
+  arrivalDate: String!
+  departureDate: String!
+  email: String!
+  firstName: String!
+  lastName: String!
+  nationality: String!
+  phone: String!
+  visaType: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type EmergencyContact {
+  description: String
+  iconName: String
+  id: ID!
+  name: String!
+  phoneNumber: String!
+}
+
+type Mutation {
+  createCarBooking(createCarBookingInput: CreateCarBookingInput!): CarBooking!
+  createVisaRequest(createVisaRequestInput: CreateVisaRequestInput!): VisaRequest!
+}
+
+type Query {
+  car(id: String!): Car!
+  cars: [Car!]!
+  carsByType(type: String!): [Car!]!
+  emergencyContacts: [EmergencyContact!]!
+  securityServices: [SecurityService!]!
+  securityTips: [SecurityTip!]!
+  visaTypes: [VisaType!]!
+}
+
+type SecurityService {
+  description: String!
+  iconName: String!
+  id: ID!
+  name: String!
+  price: Float
+}
+
+type SecurityTip {
+  category: String!
+  description: String!
+  iconName: String!
+  id: ID!
+  title: String!
+}
+
+type VisaRequest {
+  additionalInfo: String
+  arrivalDate: String!
+  createdAt: DateTime!
+  departureDate: String!
+  email: String!
+  firstName: String!
+  id: ID!
+  lastName: String!
+  nationality: String!
+  phone: String!
+  status: String!
+  visaType: String!
+}
+
+type VisaType {
+  description: String
+  id: ID!
+  name: String!
+  price: Float
+}

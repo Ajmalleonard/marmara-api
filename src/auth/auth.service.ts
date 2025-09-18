@@ -247,4 +247,118 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
   }
+
+  // Microservice specific methods for gRPC compatibility
+
+  async validateToken(token: string): Promise<any> {
+    try {
+      const payload = this.jwtService.verify(token);
+      const { sub: userId } = payload;
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          isAdmin: true,
+          isVerified: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      return { user, payload };
+    } catch (error: any) {
+      throw new UnauthorizedException('Invalid token');
+    }
+  }
+
+  async checkUserRole(userId: string, roles: string[]): Promise<boolean> {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (!user) {
+        return false;
+      }
+
+      // Check if user is admin (assuming isAdmin field represents admin role)
+      if (roles.includes('admin') && user.isAdmin) {
+        return true;
+      }
+
+      // Check for customer role (default for non-admin users)
+      if (roles.includes('customer') && !user.isAdmin) {
+        return true;
+      }
+
+      return false;
+    } catch (error: any) {
+      return false;
+    }
+  }
+
+  async checkResourceOwnership(
+    userId: string,
+    resourceId: string,
+    resourceType: string,
+  ): Promise<boolean> {
+    try {
+      // Check if the user exists
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (!user) {
+        return false;
+      }
+
+      // Admin always has access
+      if (user.isAdmin) {
+        return true;
+      }
+
+      // Check ownership based on resource type
+      switch (resourceType) {
+        case 'booking':
+          const booking = await this.prisma.booking.findFirst({
+            where: {
+              id: resourceId,
+              userId: userId,
+            },
+          });
+          return !!booking;
+
+        case 'reservation':
+          const reservation = await this.prisma.reservation.findFirst({
+            where: {
+              id: resourceId,
+              userId: userId,
+            },
+          });
+          return !!reservation;
+
+        case 'wishlist':
+          // Check if user has the package in their wishlist
+          const userWithWishlist = await this.prisma.user.findUnique({
+            where: { id: user.id },
+            include: { wishlists: true },
+          });
+          return (
+            userWithWishlist?.wishlists.some((pkg) => pkg.id === resourceId) ||
+            false
+          );
+
+        default:
+          return false;
+      }
+    } catch (error: any) {
+      return false;
+    }
+  }
 }

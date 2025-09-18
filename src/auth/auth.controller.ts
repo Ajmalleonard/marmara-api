@@ -115,6 +115,59 @@ export class AuthController {
     this.setTokenCookies(response, tokens);
     return { message: 'Token refreshed' };
   }
+
+  @Post('validate-token')
+  async validateToken(@Body() data: { token: string }) {
+    try {
+      const user = await this.authService.validateToken(data.token);
+      return { user };
+    } catch (error) {
+      return {
+        user: null,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  }
+
+  @Post('check-role')
+  async checkRole(@Body() data: { userId: string; roles: string[] }) {
+    try {
+      const hasRole = await this.authService.checkUserRole(
+        data.userId,
+        data.roles,
+      );
+      return { hasRole };
+    } catch (error) {
+      return {
+        hasRole: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  }
+
+  @Post('check-ownership')
+  async checkOwnership(
+    @Body()
+    data: {
+      userId: string;
+      resourceId: string;
+      resourceType: string;
+    },
+  ) {
+    try {
+      const isOwner = await this.authService.checkResourceOwnership(
+        data.userId,
+        data.resourceId,
+        data.resourceType,
+      );
+      return { isOwner };
+    } catch (error) {
+      return {
+        isOwner: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  }
   private setTokenCookies(
     response: Response,
     tokens: { accessToken: string; refreshToken: string },
