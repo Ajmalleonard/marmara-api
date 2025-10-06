@@ -22,7 +22,7 @@ async function bootstrap() {
       'https://www.marmaraholidays.com',
       'https://www.marmaratravels.com',
       'https://admin.marmaraholidays.com',
-      'https://marmaraholidays.com',
+      'https://www.marmaraholidays.com',
     ],
     credentials: true, // Allow credentials (cookies)
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
