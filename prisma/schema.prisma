@@ -172,3 +172,170 @@ enum ReservationStatus {
   CONFIRMED
   CANCELED
 }
+
+
+
+type Pets {
+  count   Int
+  type    String
+  details String
+}
+
+type TravelGroup {
+  adults          Int
+  children        Int
+  infants         Int
+  countryOfOrigin String
+  pets            Pets?
+}
+
+type Budget {
+  min      Int
+  max      Int
+  currency String
+}
+
+type ContactInfo {
+  email          String
+  phone          String
+  receiveUpdates Boolean
+}
+
+model FormattedTripData {
+  id             String      @id @default(auto()) @map("_id") @db.ObjectId
+  destination    String
+  activities     String[]
+  travelGroup    TravelGroup
+  budget         Budget
+  contactInfo    ContactInfo
+  message        String
+  aiResponse     String?
+  selectedImages String[]
+}
+
+model Conversation {
+  id          String              @id @default(auto()) @map("_id") @db.ObjectId
+  phoneNumber String              @unique
+  customerName String?
+  language    String?             @default("en") // en, sw (Swahili)
+  status      ConversationStatus  @default(ACTIVE)
+  context     ConversationContext?
+  messages    Message[]
+  plannerEngagements PlannerEngagement[]
+  whatsappEngagements WhatsAppEngagement[]
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  lastMessageAt DateTime          @default(now())
+  
+  @@map("conversations")
+}
+
+model Message {
+  id             String      @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId String      @db.ObjectId
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  content        String
+  sender         MessageSender
+  messageType    MessageType @default(TEXT)
+  aiResponse     String?
+  responseTime   Int?        // Response time in milliseconds
+  sentiment      String?     // positive, negative, neutral
+  intent         String?     // travel_inquiry, booking, support, etc.
+  entities       String[]    // Extracted entities like destinations, dates
+  timestamp      DateTime    @default(now())
+  
+  @@map("messages")
+}
+
+type ConversationContext {
+  customerType     String?    // new, returning, vip
+  interests        String[]   // safari, beach, culture, etc.
+  budget           String?    // low, medium, high
+  travelDates      String?
+  groupSize        Int?
+  previousBookings String[]   @db.ObjectId
+  preferences      Json?      // Custom preferences object
+  lastIntent       String?
+  conversationFlow String?    // greeting, inquiry, negotiation, booking
+  isHumanTakeover  Boolean    @default(false)
+  humanTakeoverAt  DateTime?
+  aiPausedUntil    DateTime?
+  lastHumanMessage DateTime?
+  analytics        Json?      // Analytics data for conversation tracking
+}
+
+enum ConversationStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+enum MessageSender {
+  USER
+  AI
+  SYSTEM
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  DOCUMENT
+  LOCATION
+  CONTACT
+}
+
+// Planner-specific engagement tracking
+model PlannerEngagement {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId    String   @db.ObjectId
+  conversation      Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  
+  // Plan-related metrics
+  planRequested     Boolean  @default(false)
+  planGenerated     Boolean  @default(false)
+  planAccepted      Boolean  @default(false)
+  planModified      Boolean  @default(false)
+  
+  // Notification tracking
+  notificationSent  Boolean  @default(false)
+  notificationTime  DateTime?
+  
+  // Plan details
+  planType          String?  // e.g., "travel", "itinerary", "booking"
+  planData          Json?    // Store plan details
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@map("planner_engagements")
+}
+
+// General WhatsApp activity engagement
+model WhatsAppEngagement {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId    String   @db.ObjectId
+  conversation      Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  
+  // General activity metrics
+  messageCount      Int      @default(0)
+  responseTime      Float?   // Average response time in seconds
+  sessionDuration   Float?   // Session duration in minutes
+  
+  // Engagement quality
+  userSatisfaction  String?  // "high", "medium", "low"
+  interactionType   String?  // "inquiry", "booking", "support", "general"
+  
+  // Activity tracking
+  lastActivity      DateTime @default(now())
+  isActive          Boolean  @default(true)
+  
+  // Analytics data
+  analytics         Json?    // Store detailed analytics 
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@map("whatsapp_engagements")
+}
+

@@ -4,6 +4,8 @@ node_modules/
 services/*/node_modules/
 gateway/node_modules/
 
+whatsapp-auth/
+
 # Environment variables
 .env
 .env.local

@@ -1,11 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateReservationDto } from './dto/create-reservation.dto';
+import { WhatsAppService } from '../whatsapp/whatsapp.service';
+import {
+  CreateReservationDto,
+  FormattedTripDataDto,
+} from './dto/create-reservation.dto';
 import { ReservationStatus } from '@prisma/client';
 
 @Injectable()
 export class ReservationsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private whatsAppService: WhatsAppService,
+  ) {}
 
   async create(createReservationDto: CreateReservationDto) {
     const reservation = await this.prisma.reservation.create({
@@ -67,5 +74,40 @@ export class ReservationsService {
       where: { id },
       data: { status },
     });
+  }
+
+  async planner(data: FormattedTripDataDto) {
+    try {
+      // Create the trip plan in database
+      const tripPlan = await this.prisma.formattedTripData.create({
+        data,
+      });
+
+      // Send WhatsApp notifications
+      if (data.contactInfo?.phone) {
+        // Use destination as fallback for customer name since ContactInfo doesn't have name
+        const customerName = 'Valued Customer'; // Generic greeting since name is not available in ContactInfo
+
+        // Send notification to customer
+        await this.whatsAppService.sendTripPlanNotification(
+          data.contactInfo.phone,
+          customerName,
+          data.destination,
+        );
+
+        // Send notification to admin team
+        await this.whatsAppService.sendAdminNotification(
+          customerName,
+          data.destination,
+          data.contactInfo.phone,
+        );
+      }
+
+      return tripPlan;
+    } catch (error) {
+      // If WhatsApp fails, still return the created trip plan
+      console.error('WhatsApp notification failed:', error);
+      throw error;
+    }
   }
 }

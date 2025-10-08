@@ -16,6 +16,7 @@ import { join } from 'path';
 import { VisaArrangementModule } from './visa-arrangement/visa-arrangement.module';
 import { CarHireModule } from './car-hire/car-hire.module';
 import { SecurityModule } from './security/security.module';
+import { WhatsAppModule } from './whatsapp/whatsapp.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { SecurityModule } from './security/security.module';
     VisaArrangementModule,
     CarHireModule,
     SecurityModule,
+    WhatsAppModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
