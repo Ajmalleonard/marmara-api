@@ -52,7 +52,7 @@ export class BookingsService {
     };
 
     await sendBookingConfirmationEmail(booking.user.email, bookingData);
-    await sendAdminBookingEmail(bookingData);
+    await sendAdminBookingEmail('admin@marmaraholidays.com', bookingData);
 
     return bookingData;
   }

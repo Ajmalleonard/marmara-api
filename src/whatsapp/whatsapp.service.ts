@@ -44,6 +44,18 @@ export class WhatsAppService implements OnModuleInit {
         this.reconnectTimeout = null;
       }
 
+      // Optionally force QR regeneration in prod by clearing persisted auth
+      if (process.env.WHATSAPP_FORCE_QR === 'true') {
+        try {
+          if (fs.existsSync(this.authDir)) {
+            this.logger.warn('WHATSAPP_FORCE_QR=true detected. Clearing persisted WhatsApp auth to regenerate QR.');
+            fs.rmSync(this.authDir, { recursive: true, force: true });
+          }
+        } catch (err) {
+          this.logger.error('Failed to clear WhatsApp auth directory during forced QR:', err);
+        }
+      }
+
       //  ! Ensure auth directory exists
       if (!fs.existsSync(this.authDir)) {
         fs.mkdirSync(this.authDir, { recursive: true });
@@ -121,11 +133,29 @@ export class WhatsAppService implements OnModuleInit {
   }
 
   private handleConnectionClose(lastDisconnect: any) {
-    const shouldReconnect = (lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
     const statusCode = (lastDisconnect?.error as Boom)?.output?.statusCode;
-    
+    const isLoggedOut = statusCode === DisconnectReason.loggedOut || statusCode === 401;
+    const shouldReconnect = !isLoggedOut;
+
     this.logger.warn(`Connection closed. Status: ${statusCode}, Should reconnect: ${shouldReconnect}`);
-    
+
+    if (isLoggedOut) {
+      // Clear persisted auth state so that QR is generated on next init
+      try {
+        if (fs.existsSync(this.authDir)) {
+          this.logger.warn('Detected logged out/401. Clearing WhatsApp auth and regenerating QR...');
+          fs.rmSync(this.authDir, { recursive: true, force: true });
+        }
+      } catch (err) {
+        this.logger.error('Failed to clear WhatsApp auth directory after logout:', err);
+      }
+      // Immediately reinitialize to trigger fresh QR
+      this.isReconnecting = false;
+      this.reconnectAttempts = 0;
+      this.initializeWhatsApp();
+      return;
+    }
+
     if (shouldReconnect && !this.isReconnecting) {
       this.scheduleReconnect();
     }

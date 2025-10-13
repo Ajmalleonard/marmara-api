@@ -2,6 +2,49 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Aircraft {
+  code: String!
+}
+
+type Amenity {
+  amenityProvider: JSON
+  amenityType: String!
+  description: String!
+  isChargeable: Boolean!
+}
+
+type BookingCancellationResponse {
+  message: String!
+  refundAmount: Float
+  refundCurrency: String
+  success: Boolean!
+}
+
+type BookingContactInfo {
+  countryCode: String!
+  email: String!
+  emergencyContact: FlightEmergencyContact
+  phone: String!
+}
+
+enum BookingType {
+  MULTI_CITY
+  ONE_WAY
+  ROUND_TRIP
+}
+
+enum CabinClass {
+  BUSINESS
+  ECONOMY
+  FIRST
+  PREMIUM_ECONOMY
+}
+
+input CancelFlightBookingInput {
+  bookingId: String!
+  cancellationReason: String
+}
+
 type Car {
   airCon: Boolean!
   engine: String!
@@ -30,6 +73,13 @@ type CarBooking {
   withDriver: Boolean!
 }
 
+input ContactInfoInput {
+  countryCode: String!
+  email: String!
+  emergencyContact: EmergencyContactInput
+  phone: String!
+}
+
 input CreateCarBookingInput {
   dropoffLocation: String!
   email: String!
@@ -40,6 +90,15 @@ input CreateCarBookingInput {
   specialRequests: String
   vehicleType: String!
   withDriver: Boolean!
+}
+
+input CreateFlightBookingInput {
+  contactInfo: ContactInfoInput!
+  flightOffer: JSON!
+  passengers: [PassengerInput!]!
+  paymentMethod: String
+  remarks: JSON
+  searchCriteria: JSON
 }
 
 input CreateVisaRequestInput {
@@ -59,6 +118,13 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+enum DocumentType {
+  DRIVERS_LICENSE
+  NATIONAL_ID
+  OTHER
+  PASSPORT
+}
+
 type EmergencyContact {
   description: String
   iconName: String
@@ -67,16 +133,333 @@ type EmergencyContact {
   phoneNumber: String!
 }
 
+input EmergencyContactInput {
+  name: String!
+  phone: String!
+  relationship: String!
+}
+
+type FareDetailsBySegment {
+  amenities: [Amenity!]
+  brandedFare: String
+  brandedFareLabel: String
+  cabin: String!
+  class: String!
+  fareBasis: String!
+  includedCabinBags: IncludedCabinBags
+  includedCheckedBags: IncludedCheckedBags!
+  segmentId: String!
+}
+
+type Fee {
+  amount: Float!
+  type: String!
+}
+
+type FlightBooking {
+  amadeusBookingId: String
+  amadeusOfferId: String
+  baseFare: Float!
+  bookingDate: String!
+  bookingReference: String!
+  bookingType: BookingType!
+  contactInfo: BookingContactInfo!
+  createdAt: String!
+  currency: String!
+  expiresAt: String
+  fees: Float!
+  id: ID!
+  outboundFlights: [FlightBookingSegment!]!
+  passengers: [FlightBookingPassenger!]!
+  paymentDate: String
+  paymentMethod: String
+  paymentStatus: PaymentStatus!
+  paymentTransactionId: String
+  returnFlights: [FlightBookingSegment!]!
+  searchCriteria: JSON
+  selectedOfferData: JSON
+  status: FlightBookingStatus!
+  taxes: Float!
+  totalPrice: Float!
+  travelDate: String!
+  updatedAt: String!
+  userId: String!
+}
+
+type FlightBookingPassenger {
+  createdAt: String!
+  dateOfBirth: String!
+  documentExpiry: String
+  documentNumber: String!
+  documentType: DocumentType!
+  email: String
+  firstName: String!
+  frequentFlyerNumber: String
+  gender: Gender!
+  id: ID!
+  isLeadPassenger: Boolean!
+  issuingCountry: String!
+  knownTravelerNumber: String
+  lastName: String!
+  middleName: String
+  nationality: String!
+  phone: String
+  specialRequests: [String!]!
+  title: String
+  updatedAt: String!
+}
+
+type FlightBookingResponse {
+  booking: FlightBooking!
+  message: String!
+  success: Boolean!
+}
+
+type FlightBookingSegment {
+  aircraft: String
+  aircraftName: String
+  airline: String!
+  airlineName: String!
+  amadeusData: JSON
+  amadeusSegmentId: String
+  arrivalAirport: String!
+  arrivalTerminal: String
+  arrivalTime: String!
+  bookingClass: String!
+  cabin: CabinClass!
+  createdAt: String!
+  departureAirport: String!
+  departureTerminal: String
+  departureTime: String!
+  duration: String!
+  fareBasis: String
+  flightNumber: String!
+  id: ID!
+  isLayover: Boolean!
+  layoverDuration: String
+  operatingAirline: String
+  segmentNumber: Int!
+  updatedAt: String!
+}
+
+enum FlightBookingStatus {
+  CANCELLED
+  COMPLETED
+  CONFIRMED
+  EXPIRED
+  NO_SHOW
+  PENDING
+  REFUNDED
+  TICKETED
+}
+
+type FlightDestination {
+  departureDate: String!
+  destination: String!
+  links: JSON!
+  origin: String!
+  price: Price!
+  returnDate: String
+  type: String!
+}
+
+type FlightEmergencyContact {
+  name: String!
+  phone: String!
+  relationship: String!
+}
+
+type FlightEndpoint {
+  at: String!
+  iataCode: String!
+  terminal: String
+}
+
+input FlightInspirationInput {
+  currency: String
+  departureDate: String
+  destination: String
+  max: Int
+  maxPrice: Int
+  origin: String!
+  returnDate: String
+}
+
+type FlightInspirationResponse {
+  data: [FlightDestination!]!
+  dictionaries: FlightSearchDictionaries
+}
+
+type FlightOffer {
+  id: ID!
+  instantTicketingRequired: Boolean!
+  isUpsellOffer: Boolean
+  itineraries: [Itinerary!]!
+  lastTicketingDate: String!
+  lastTicketingDateTime: String
+  nonHomogeneous: Boolean!
+  numberOfBookableSeats: Int!
+  oneWay: Boolean!
+  price: Price!
+  pricingOptions: PricingOptions!
+  source: String!
+  travelerPricings: [TravelerPricing!]!
+  type: String!
+  validatingAirlineCodes: [String!]!
+}
+
+type FlightSearchDictionaries {
+  aircraft: JSON
+  carriers: JSON
+  currencies: JSON
+  locations: JSON
+}
+
+input FlightSearchInput {
+  adults: Int!
+  children: Int
+  currencyCode: String
+  departureDate: String!
+  destinationLocationCode: String!
+  excludedAirlineCodes: [String!]
+  includedAirlineCodes: [String!]
+  infants: Int
+  max: Int
+  nonStop: Boolean
+  originLocationCode: String!
+  returnDate: String
+  travelClass: String
+}
+
+type FlightSearchMeta {
+  count: Int!
+  links: JSON
+}
+
+type FlightSearchResponse {
+  data: [FlightOffer!]!
+  dictionaries: FlightSearchDictionaries
+  meta: FlightSearchMeta
+}
+
+type FlightSegment {
+  aircraft: Aircraft!
+  arrival: FlightEndpoint!
+  blacklistedInEU: Boolean!
+  carrierCode: String!
+  departure: FlightEndpoint!
+  duration: String!
+  id: ID!
+  number: String!
+  numberOfStops: Int!
+  operating: Operating
+}
+
+enum Gender {
+  FEMALE
+  MALE
+  OTHER
+}
+
+input GetBookingInput {
+  bookingId: String!
+}
+
+input GetUserBookingsInput {
+  limit: Int = 10
+  offset: Int = 0
+  userId: String
+}
+
+type IncludedCabinBags {
+  quantity: Int!
+}
+
+type IncludedCheckedBags {
+  quantity: Int!
+}
+
+type Itinerary {
+  duration: String!
+  segments: [FlightSegment!]!
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+input ModifyFlightBookingInput {
+  bookingId: String!
+  contactInfo: ContactInfoInput
+  passengers: [PassengerInput!]
+  remarks: JSON
+}
+
 type Mutation {
+  cancelFlightBooking(input: CancelFlightBookingInput!): BookingCancellationResponse!
   createCarBooking(createCarBookingInput: CreateCarBookingInput!): CarBooking!
+  createFlightBooking(input: CreateFlightBookingInput!): FlightBookingResponse!
   createVisaRequest(createVisaRequestInput: CreateVisaRequestInput!): VisaRequest!
+  modifyFlightBooking(input: ModifyFlightBookingInput!): FlightBookingResponse!
+}
+
+type Operating {
+  carrierCode: String!
+}
+
+input PassengerInput {
+  dateOfBirth: String!
+  documentExpiry: String
+  documentNumber: String!
+  documentType: DocumentType!
+  email: String
+  firstName: String!
+  frequentFlyerNumber: String
+  gender: Gender!
+  isLeadPassenger: Boolean!
+  issuingCountry: String!
+  knownTravelerNumber: String
+  lastName: String!
+  middleName: String
+  nationality: String!
+  phone: String
+  specialRequests: [String!]
+  title: String
+}
+
+enum PaymentStatus {
+  COMPLETED
+  FAILED
+  PARTIALLY_REFUNDED
+  PENDING
+  PROCESSING
+  REFUNDED
+}
+
+type Price {
+  base: Float!
+  currency: String!
+  fees: [Fee!]!
+  grandTotal: Float!
+  total: Float!
+}
+
+type PricingOptions {
+  fareType: [String!]!
+  includedCheckedBagsOnly: Boolean!
 }
 
 type Query {
+  amadeusHealth: String!
   car(id: String!): Car!
   cars: [Car!]!
   carsByType(type: String!): [Car!]!
   emergencyContacts: [EmergencyContact!]!
+  flightInspiration(input: FlightInspirationInput!): FlightInspirationResponse!
+  getFlightBooking(input: GetBookingInput!): FlightBooking!
+  getUserFlightBookings(input: GetUserBookingsInput): [FlightBooking!]!
+  searchFlights(input: FlightSearchInput!): FlightSearchResponse!
   securityServices: [SecurityService!]!
   securityTips: [SecurityTip!]!
   visaTypes: [VisaType!]!
@@ -96,6 +479,14 @@ type SecurityTip {
   iconName: String!
   id: ID!
   title: String!
+}
+
+type TravelerPricing {
+  fareDetailsBySegment: [FareDetailsBySegment!]!
+  fareOption: String!
+  price: Price!
+  travelerId: String!
+  travelerType: String!
 }
 
 type VisaRequest {

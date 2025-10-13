@@ -3,6 +3,8 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './Guards/AllExceptions.filter';
 import * as cookieParser from 'cookie-parser';
+import * as fs from 'fs';
+import * as path from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -53,4 +55,19 @@ async function bootstrap() {
 
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
+function ensureWhatsAppAuthPersistence() {
+  const dir = path.join(process.cwd(), 'whatsapp-auth');
+  try {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    // Check writability
+    fs.accessSync(dir, fs.constants.W_OK);
+    // Optional: log path for operational visibility
+    console.log(`[Bootstrap] WhatsApp auth directory ready: ${dir}`);
+  } catch (err) {
+    console.error('[Bootstrap] WhatsApp auth directory is not writable or cannot be created:', err);
+  }
+}
+ensureWhatsAppAuthPersistence();
 bootstrap();

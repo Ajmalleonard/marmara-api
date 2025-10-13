@@ -1,0 +1,288 @@
+{
+  "data": {
+    "searchFlights": {
+      "meta": { "count": 5 },
+      "data": [
+        {
+          "id": "1",
+          "source": "GDS",
+          "price": { "total": 1194.8, "currency": "EUR", "grandTotal": 1194.8 },
+          "itineraries": [
+            {
+              "duration": "PT7H25M",
+              "segments": [
+                {
+                  "carrierCode": "UA",
+                  "number": "940",
+                  "departure": {
+                    "iataCode": "EWR",
+                    "at": "2025-12-01T22:00:00"
+                  },
+                  "arrival": { "iataCode": "LHR", "at": "2025-12-02T10:25:00" }
+                }
+              ]
+            },
+            {
+              "duration": "PT11H30M",
+              "segments": [
+                {
+                  "carrierCode": "UA",
+                  "number": "9924",
+                  "departure": {
+                    "iataCode": "LHR",
+                    "at": "2025-12-08T06:50:00"
+                  },
+                  "arrival": { "iataCode": "BRU", "at": "2025-12-08T08:55:00" }
+                },
+                {
+                  "carrierCode": "UA",
+                  "number": "9929",
+                  "departure": {
+                    "iataCode": "BRU",
+                    "at": "2025-12-08T10:35:00"
+                  },
+                  "arrival": { "iataCode": "JFK", "at": "2025-12-08T13:20:00" }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "2",
+          "source": "GDS",
+          "price": { "total": 1194.8, "currency": "EUR", "grandTotal": 1194.8 },
+          "itineraries": [
+            {
+              "duration": "PT10H30M",
+              "segments": [
+                {
+                  "carrierCode": "UA",
+                  "number": "8157",
+                  "departure": {
+                    "iataCode": "EWR",
+                    "at": "2025-12-01T15:40:00"
+                  },
+                  "arrival": { "iataCode": "YUL", "at": "2025-12-01T17:17:00" }
+                },
+                {
+                  "carrierCode": "UA",
+                  "number": "8296",
+                  "departure": {
+                    "iataCode": "YUL",
+                    "at": "2025-12-01T19:15:00"
+                  },
+                  "arrival": { "iataCode": "LHR", "at": "2025-12-02T07:10:00" }
+                }
+              ]
+            },
+            {
+              "duration": "PT11H30M",
+              "segments": [
+                {
+                  "carrierCode": "UA",
+                  "number": "9924",
+                  "departure": {
+                    "iataCode": "LHR",
+                    "at": "2025-12-08T06:50:00"
+                  },
+                  "arrival": { "iataCode": "BRU", "at": "2025-12-08T08:55:00" }
+                },
+                {
+                  "carrierCode": "UA",
+                  "number": "9929",
+                  "departure": {
+                    "iataCode": "BRU",
+                    "at": "2025-12-08T10:35:00"
+                  },
+                  "arrival": { "iataCode": "JFK", "at": "2025-12-08T13:20:00" }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "3",
+          "source": "GDS",
+          "price": { "total": 1194.8, "currency": "EUR", "grandTotal": 1194.8 },
+          "itineraries": [
+            {
+              "duration": "PT10H40M",
+              "segments": [
+                {
+                  "carrierCode": "AC",
+                  "number": "8943",
+                  "departure": {
+                    "iataCode": "EWR",
+                    "at": "2025-12-01T15:30:00"
+                  },
+                  "arrival": { "iataCode": "YUL", "at": "2025-12-01T17:02:00" }
+                },
+                {
+                  "carrierCode": "AC",
+                  "number": "864",
+                  "departure": {
+                    "iataCode": "YUL",
+                    "at": "2025-12-01T19:10:00"
+                  },
+                  "arrival": { "iataCode": "LHR", "at": "2025-12-02T07:10:00" }
+                }
+              ]
+            },
+            {
+              "duration": "PT11H30M",
+              "segments": [
+                {
+                  "carrierCode": "UA",
+                  "number": "9924",
+                  "departure": {
+                    "iataCode": "LHR",
+                    "at": "2025-12-08T06:50:00"
+                  },
+                  "arrival": { "iataCode": "BRU", "at": "2025-12-08T08:55:00" }
+                },
+                {
+                  "carrierCode": "UA",
+                  "number": "9929",
+                  "departure": {
+                    "iataCode": "BRU",
+                    "at": "2025-12-08T10:35:00"
+                  },
+                  "arrival": { "iataCode": "JFK", "at": "2025-12-08T13:20:00" }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "4",
+          "source": "GDS",
+          "price": { "total": 1194.8, "currency": "EUR", "grandTotal": 1194.8 },
+          "itineraries": [
+            {
+              "duration": "PT10H40M",
+              "segments": [
+                {
+                  "carrierCode": "UA",
+                  "number": "8185",
+                  "departure": {
+                    "iataCode": "LGA",
+                    "at": "2025-12-01T15:30:00"
+                  },
+                  "arrival": { "iataCode": "YUL", "at": "2025-12-01T17:06:00" }
+                },
+                {
+                  "carrierCode": "UA",
+                  "number": "8296",
+                  "departure": {
+                    "iataCode": "YUL",
+                    "at": "2025-12-01T19:15:00"
+                  },
+                  "arrival": { "iataCode": "LHR", "at": "2025-12-02T07:10:00" }
+                }
+              ]
+            },
+            {
+              "duration": "PT11H30M",
+              "segments": [
+                {
+                  "carrierCode": "UA",
+                  "number": "9924",
+                  "departure": {
+                    "iataCode": "LHR",
+                    "at": "2025-12-08T06:50:00"
+                  },
+                  "arrival": { "iataCode": "BRU", "at": "2025-12-08T08:55:00" }
+                },
+                {
+                  "carrierCode": "UA",
+                  "number": "9929",
+                  "departure": {
+                    "iataCode": "BRU",
+                    "at": "2025-12-08T10:35:00"
+                  },
+                  "arrival": { "iataCode": "JFK", "at": "2025-12-08T13:20:00" }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "5",
+          "source": "GDS",
+          "price": { "total": 1194.8, "currency": "EUR", "grandTotal": 1194.8 },
+          "itineraries": [
+            {
+              "duration": "PT13H20M",
+              "segments": [
+                {
+                  "carrierCode": "UA",
+                  "number": "8624",
+                  "departure": {
+                    "iataCode": "LGA",
+                    "at": "2025-12-01T12:50:00"
+                  },
+                  "arrival": { "iataCode": "YUL", "at": "2025-12-01T14:22:00" }
+                },
+                {
+                  "carrierCode": "UA",
+                  "number": "8296",
+                  "departure": {
+                    "iataCode": "YUL",
+                    "at": "2025-12-01T19:15:00"
+                  },
+                  "arrival": { "iataCode": "LHR", "at": "2025-12-02T07:10:00" }
+                }
+              ]
+            },
+            {
+              "duration": "PT11H30M",
+              "segments": [
+                {
+                  "carrierCode": "UA",
+                  "number": "9924",
+                  "departure": {
+                    "iataCode": "LHR",
+                    "at": "2025-12-08T06:50:00"
+                  },
+                  "arrival": { "iataCode": "BRU", "at": "2025-12-08T08:55:00" }
+                },
+                {
+                  "carrierCode": "UA",
+                  "number": "9929",
+                  "departure": {
+                    "iataCode": "BRU",
+                    "at": "2025-12-08T10:35:00"
+                  },
+                  "arrival": { "iataCode": "JFK", "at": "2025-12-08T13:20:00" }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "dictionaries": {
+        "locations": {
+          "YUL": { "cityCode": "YMQ", "countryCode": "CA" },
+          "EWR": { "cityCode": "NYC", "countryCode": "US" },
+          "BRU": { "cityCode": "BRU", "countryCode": "BE" },
+          "LGA": { "cityCode": "NYC", "countryCode": "US" },
+          "LHR": { "cityCode": "LON", "countryCode": "GB" },
+          "JFK": { "cityCode": "NYC", "countryCode": "US" }
+        },
+        "aircraft": {
+          "333": "AIRBUS A330-300",
+          "763": "BOEING 767-300/300ER",
+          "E75": "EMBRAER 175",
+          "CR9": "CANADAIR REGIONAL JET 900",
+          "32N": "AIRBUS A320NEO"
+        },
+        "currencies": { "EUR": "EURO" },
+        "carriers": {
+          "AC": "AIR CANADA",
+          "SN": "BRUSSELS AIRLINES",
+          "UA": "UNITED AIRLINES"
+        }
+      }
+    }
+  }
+}

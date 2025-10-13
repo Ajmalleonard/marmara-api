@@ -8,23 +8,27 @@ datasource db {
 }
 
 model User {
-  id                         String        @id @default(auto()) @map("_id") @db.ObjectId
-  email                      String        @unique
+  id                         String          @id @default(auto()) @map("_id") @db.ObjectId
+  email                      String          @unique
   password                   String
   name                       String
-  lastLogin                  DateTime      @default(now())
-  isVerified                 Boolean       @default(false)
-  isAdmin                    Boolean       @default(false)
+  lastLogin                  DateTime        @default(now())
+  isVerified                 Boolean         @default(false)
+  isAdmin                    Boolean         @default(false)
   resetPasswordToken         String?
   resetPasswordExpiresAt     DateTime?
   verificationToken          String?
   verificationTokenExpiresAt DateTime?
+  stripeCustomerId           String?
   bookings                   Booking[]
-  wishlists                  Package[]     @relation(fields: [wishlistIds], references: [id])
-  wishlistIds                String[]      @db.ObjectId
-  createdAt                  DateTime      @default(now())
-  updatedAt                  DateTime      @updatedAt
-  reservations               Reservation[] @relation("UserToReservation")
+  wishlists                  Package[]       @relation(fields: [wishlistIds], references: [id])
+  wishlistIds                String[]        @db.ObjectId
+  createdAt                  DateTime        @default(now())
+  updatedAt                  DateTime        @updatedAt
+  reservations               Reservation[]   @relation("UserToReservation")
+  flightBookings             FlightBooking[] @relation("UserToFlightBooking")
+  payments                   Payment[]       @relation("UserToPayment")
+  refunds                    Refund[]        @relation("UserToRefund")
 }
 
 model Booking {
@@ -173,8 +177,6 @@ enum ReservationStatus {
   CANCELED
 }
 
-
-
 type Pets {
   count   Int
   type    String
@@ -214,54 +216,54 @@ model FormattedTripData {
 }
 
 model Conversation {
-  id          String              @id @default(auto()) @map("_id") @db.ObjectId
-  phoneNumber String              @unique
-  customerName String?
-  language    String?             @default("en") // en, sw (Swahili)
-  status      ConversationStatus  @default(ACTIVE)
-  context     ConversationContext?
-  messages    Message[]
-  plannerEngagements PlannerEngagement[]
+  id                  String               @id @default(auto()) @map("_id") @db.ObjectId
+  phoneNumber         String               @unique
+  customerName        String?
+  language            String?              @default("en") // en, sw (Swahili)
+  status              ConversationStatus   @default(ACTIVE)
+  context             ConversationContext?
+  messages            Message[]
+  plannerEngagements  PlannerEngagement[]
   whatsappEngagements WhatsAppEngagement[]
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
-  lastMessageAt DateTime          @default(now())
-  
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  lastMessageAt       DateTime             @default(now())
+
   @@map("conversations")
 }
 
 model Message {
-  id             String      @id @default(auto()) @map("_id") @db.ObjectId
-  conversationId String      @db.ObjectId
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId String        @db.ObjectId
+  conversation   Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   content        String
   sender         MessageSender
-  messageType    MessageType @default(TEXT)
+  messageType    MessageType   @default(TEXT)
   aiResponse     String?
-  responseTime   Int?        // Response time in milliseconds
-  sentiment      String?     // positive, negative, neutral
-  intent         String?     // travel_inquiry, booking, support, etc.
-  entities       String[]    // Extracted entities like destinations, dates
-  timestamp      DateTime    @default(now())
-  
+  responseTime   Int? // Response time in milliseconds
+  sentiment      String? // positive, negative, neutral
+  intent         String? // travel_inquiry, booking, support, etc.
+  entities       String[] // Extracted entities like destinations, dates
+  timestamp      DateTime      @default(now())
+
   @@map("messages")
 }
 
 type ConversationContext {
-  customerType     String?    // new, returning, vip
-  interests        String[]   // safari, beach, culture, etc.
-  budget           String?    // low, medium, high
+  customerType     String? // new, returning, vip
+  interests        String[] // safari, beach, culture, etc.
+  budget           String? // low, medium, high
   travelDates      String?
   groupSize        Int?
-  previousBookings String[]   @db.ObjectId
-  preferences      Json?      // Custom preferences object
+  previousBookings String[]  @db.ObjectId
+  preferences      Json? // Custom preferences object
   lastIntent       String?
-  conversationFlow String?    // greeting, inquiry, negotiation, booking
-  isHumanTakeover  Boolean    @default(false)
+  conversationFlow String? // greeting, inquiry, negotiation, booking
+  isHumanTakeover  Boolean   @default(false)
   humanTakeoverAt  DateTime?
   aiPausedUntil    DateTime?
   lastHumanMessage DateTime?
-  analytics        Json?      // Analytics data for conversation tracking
+  analytics        Json? // Analytics data for conversation tracking
 }
 
 enum ConversationStatus {
@@ -287,55 +289,496 @@ enum MessageType {
 
 // Planner-specific engagement tracking
 model PlannerEngagement {
-  id                String   @id @default(auto()) @map("_id") @db.ObjectId
-  conversationId    String   @db.ObjectId
-  conversation      Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId String       @db.ObjectId
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
   // Plan-related metrics
-  planRequested     Boolean  @default(false)
-  planGenerated     Boolean  @default(false)
-  planAccepted      Boolean  @default(false)
-  planModified      Boolean  @default(false)
-  
+  planRequested Boolean @default(false)
+  planGenerated Boolean @default(false)
+  planAccepted  Boolean @default(false)
+  planModified  Boolean @default(false)
+
   // Notification tracking
-  notificationSent  Boolean  @default(false)
-  notificationTime  DateTime?
-  
+  notificationSent Boolean   @default(false)
+  notificationTime DateTime?
+
   // Plan details
-  planType          String?  // e.g., "travel", "itinerary", "booking"
-  planData          Json?    // Store plan details
-  
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  
+  planType String? // e.g., "travel", "itinerary", "booking"
+  planData Json? // Store plan details
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@map("planner_engagements")
 }
 
 // General WhatsApp activity engagement
 model WhatsAppEngagement {
-  id                String   @id @default(auto()) @map("_id") @db.ObjectId
-  conversationId    String   @db.ObjectId
-  conversation      Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId String       @db.ObjectId
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
   // General activity metrics
-  messageCount      Int      @default(0)
-  responseTime      Float?   // Average response time in seconds
-  sessionDuration   Float?   // Session duration in minutes
-  
+  messageCount    Int    @default(0)
+  responseTime    Float? // Average response time in seconds
+  sessionDuration Float? // Session duration in minutes
+
   // Engagement quality
-  userSatisfaction  String?  // "high", "medium", "low"
-  interactionType   String?  // "inquiry", "booking", "support", "general"
-  
+  userSatisfaction String? // "high", "medium", "low"
+  interactionType  String? // "inquiry", "booking", "support", "general"
+
   // Activity tracking
-  lastActivity      DateTime @default(now())
-  isActive          Boolean  @default(true)
-  
+  lastActivity DateTime @default(now())
+  isActive     Boolean  @default(true)
+
   // Analytics data
-  analytics         Json?    // Store detailed analytics 
-  
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  
+  analytics Json? // Store detailed analytics 
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@map("whatsapp_engagements")
 }
 
+// ============================================
+// AIRLINE BOOKING SYSTEM MODELS
+// ============================================
+
+model FlightBooking {
+  id               String  @id @default(auto()) @map("_id") @db.ObjectId
+  bookingReference String  @unique // Our internal booking reference
+  amadeusBookingId String? // Amadeus PNR/booking ID
+  amadeusOfferId   String? // Amadeus offer ID used for booking
+
+  // User relationship
+  userId String @db.ObjectId
+  user   User   @relation("UserToFlightBooking", fields: [userId], references: [id])
+
+  // Booking details
+  status      FlightBookingStatus @default(PENDING)
+  bookingType BookingType         @default(ROUND_TRIP)
+
+  // Pricing
+  totalPrice Float
+  baseFare   Float
+  taxes      Float
+  fees       Float
+  currency   String @default("USD")
+
+  // Passenger information
+  passengers  Passenger[]        @relation("FlightBookingToPassenger")
+  contactInfo BookingContactInfo
+
+  // Flight segments
+  outboundFlights FlightSegment[] @relation("OutboundFlights")
+  returnFlights   FlightSegment[] @relation("ReturnFlights")
+
+  // Payment information
+  paymentStatus        PaymentStatus @default(PENDING)
+  paymentMethod        String?
+  paymentTransactionId String?
+  paymentDate          DateTime?
+
+  // Payment relationships
+  payments Payment[] @relation("FlightBookingToPayment")
+  refunds  Refund[]  @relation("FlightBookingToRefund")
+
+  // Cancellation information
+  cancellationReason String?
+  cancelledAt        DateTime?
+
+  // Booking metadata
+  searchCriteria    Json? // Store original search parameters
+  selectedOfferData Json? // Store Amadeus offer data
+
+  // Timestamps
+  bookingDate DateTime  @default(now())
+  travelDate  DateTime // Departure date of first flight
+  expiresAt   DateTime? // Booking expiration (for pending bookings)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("flight_bookings")
+}
+
+model Passenger {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // Personal information
+  firstName   String
+  lastName    String
+  middleName  String?
+  dateOfBirth DateTime
+  gender      Gender
+  title       String? // Mr, Mrs, Ms, Dr, etc.
+
+  // Document information
+  documentType   DocumentType
+  documentNumber String
+  documentExpiry DateTime?
+  issuingCountry String
+  nationality    String
+
+  // Contact information (for lead passenger)
+  email           String?
+  phone           String?
+  isLeadPassenger Boolean @default(false)
+
+  // Special requirements
+  specialRequests     String[] // Meal preferences, wheelchair, etc.
+  frequentFlyerNumber String?
+  knownTravelerNumber String?
+
+  // Booking relationship
+  flightBookingId String        @db.ObjectId
+  flightBooking   FlightBooking @relation("FlightBookingToPassenger", fields: [flightBookingId], references: [id], onDelete: Cascade)
+
+  // Seat assignments
+  seatAssignments SeatAssignment[] @relation("PassengerToSeatAssignment")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("passengers")
+}
+
+model FlightSegment {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // Flight details
+  airline          String // Airline code (e.g., "AA")
+  airlineName      String // Full airline name
+  flightNumber     String // Flight number
+  operatingAirline String? // If different from marketing airline
+
+  // Aircraft information
+  aircraft     String? // Aircraft type
+  aircraftName String? // Aircraft model name
+
+  // Route information
+  departureAirport  String // IATA code
+  arrivalAirport    String // IATA code
+  departureTerminal String?
+  arrivalTerminal   String?
+
+  // Timing
+  departureTime DateTime
+  arrivalTime   DateTime
+  duration      String // Flight duration (e.g., "2H30M")
+
+  // Booking class and cabin
+  bookingClass String // Booking class code (Y, J, F, etc.)
+  cabin        CabinClass
+  fareBasis    String? // Fare basis code
+
+  // Segment metadata
+  segmentNumber   Int // Order in the journey
+  isLayover       Boolean @default(false)
+  layoverDuration String? // If this is a layover
+
+  // Booking relationships
+  outboundBookingId String?        @db.ObjectId
+  returnBookingId   String?        @db.ObjectId
+  outboundBooking   FlightBooking? @relation("OutboundFlights", fields: [outboundBookingId], references: [id], onDelete: Cascade)
+  returnBooking     FlightBooking? @relation("ReturnFlights", fields: [returnBookingId], references: [id], onDelete: Cascade)
+
+  // Seat assignments for this segment
+  seatAssignments SeatAssignment[] @relation("FlightSegmentToSeatAssignment")
+
+  // Amadeus specific data
+  amadeusSegmentId String?
+  amadeusData      Json? // Store raw Amadeus segment data
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("flight_segments")
+}
+
+model SeatAssignment {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // Seat details
+  seatNumber String // e.g., "12A"
+  seatType   SeatType? // Window, Aisle, Middle
+  seatClass  String? // Economy, Premium Economy, Business, First
+
+  // Relationships
+  passengerId String    @db.ObjectId
+  passenger   Passenger @relation("PassengerToSeatAssignment", fields: [passengerId], references: [id], onDelete: Cascade)
+
+  flightSegmentId String        @db.ObjectId
+  flightSegment   FlightSegment @relation("FlightSegmentToSeatAssignment", fields: [flightSegmentId], references: [id], onDelete: Cascade)
+
+  // Seat fees
+  seatFee  Float?
+  currency String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([passengerId, flightSegmentId])
+  @@map("seat_assignments")
+}
+
+model Airport {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // Airport codes
+  iataCode String  @unique // 3-letter IATA code
+  icaoCode String? // 4-letter ICAO code
+
+  // Airport information
+  name        String
+  city        String
+  country     String
+  countryCode String // ISO country code
+  timezone    String
+
+  // Location
+  latitude  Float?
+  longitude Float?
+
+  // Additional info
+  terminals String[] // List of terminals
+  isActive  Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("airports")
+}
+
+model FlightSearchCache {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // Search parameters (used as cache key)
+  searchHash    String     @unique // Hash of search parameters
+  origin        String
+  destination   String
+  departureDate DateTime
+  returnDate    DateTime?
+  adults        Int
+  children      Int        @default(0)
+  infants       Int        @default(0)
+  cabinClass    CabinClass
+
+  // Cached results
+  searchResults Json // Amadeus API response
+  resultCount   Int
+
+  // Cache metadata
+  expiresAt   DateTime
+  searchCount Int      @default(1) // How many times this search was performed
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("flight_search_cache")
+}
+
+model ReferenceDataCache {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // Cache key and type
+  cacheKey  String            @unique // Unique identifier for cached data
+  dataType  ReferenceDataType // Type of reference data (AIRPORT, AIRLINE)
+
+  // Cached data
+  data Json // Amadeus API response data
+
+  // Cache metadata
+  expiresAt   DateTime
+  accessCount Int      @default(1) // How many times this data was accessed
+  lastAccess  DateTime @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("reference_data_cache")
+}
+
+// ============================================
+// PAYMENT SYSTEM MODELS
+// ============================================
+
+model Payment {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // Payment details
+  amount          Float
+  currency        String  @default("USD")
+  paymentMethod   String // "stripe", "paypal", "credit_card", etc.
+  provider        PaymentProvider @default(PESAPAL)
+  status          PaymentStatus @default(PENDING)
+
+  // External payment system IDs
+  stripePaymentIntentId String? // Stripe Payment Intent ID
+  stripeChargeId        String? // Stripe Charge ID
+  pesapalOrderId        String? // PesaPal Order ID
+  pesapalTrackingId     String? // PesaPal Transaction Tracking ID
+  externalTransactionId String? // Other payment provider transaction ID
+
+  // Payment metadata
+  paymentMethodDetails Json? // Store payment method details (last4, brand, etc.)
+  receiptUrl           String?
+  failureReason        String?
+  
+  // Service fees
+  serviceFee     Float   @default(0)
+  processingFee  Float   @default(0)
+  totalFees      Float   @default(0)
+
+  // Booking relationship
+  flightBookingId String        @db.ObjectId
+  flightBooking   FlightBooking @relation("FlightBookingToPayment", fields: [flightBookingId], references: [id], onDelete: Cascade)
+
+  // User relationship
+  userId String @db.ObjectId
+  user   User   @relation("UserToPayment", fields: [userId], references: [id])
+
+  // Timestamps
+  paidAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("payments")
+}
+
+model Refund {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // Refund details
+  amount          Float
+  currency        String @default("USD")
+  reason          String
+  status          RefundStatus @default(PENDING)
+  refundType      RefundType   @default(FULL)
+
+  // External refund system IDs
+  stripeRefundId        String? // Stripe Refund ID
+  externalRefundId      String? // Other payment provider refund ID
+  originalPaymentId     String? // Reference to original payment
+
+  // Refund metadata
+  processingFee    Float   @default(0)
+  refundFee        Float   @default(0)
+  netRefundAmount  Float // Amount actually refunded to customer
+  receiptUrl       String?
+  failureReason    String?
+
+  // Booking relationship
+  flightBookingId String        @db.ObjectId
+  flightBooking   FlightBooking @relation("FlightBookingToRefund", fields: [flightBookingId], references: [id], onDelete: Cascade)
+
+  // User relationship
+  userId String @db.ObjectId
+  user   User   @relation("UserToRefund", fields: [userId], references: [id])
+
+  // Timestamps
+  processedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("refunds")
+}
+
+// ============================================
+// AIRLINE BOOKING ENUMS AND TYPES
+// ============================================
+
+enum FlightBookingStatus {
+  PENDING // Booking created but not confirmed
+  CONFIRMED // Booking confirmed with airline
+  TICKETED // Tickets issued
+  CANCELLED // Booking cancelled
+  EXPIRED // Booking expired (not paid in time)
+  REFUNDED // Booking refunded
+  NO_SHOW // Passenger didn't show up
+  COMPLETED // Flight completed
+}
+
+enum BookingType {
+  ONE_WAY
+  ROUND_TRIP
+  MULTI_CITY
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum RefundStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum RefundType {
+  FULL
+  PARTIAL
+  SERVICE_FEE_ONLY
+}
+
+enum PaymentProvider {
+  STRIPE
+  PESAPAL
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum DocumentType {
+  PASSPORT
+  NATIONAL_ID
+  DRIVERS_LICENSE
+  OTHER
+}
+
+enum CabinClass {
+  ECONOMY
+  PREMIUM_ECONOMY
+  BUSINESS
+  FIRST
+}
+
+enum SeatType {
+  WINDOW
+  AISLE
+  MIDDLE
+}
+
+enum ReferenceDataType {
+  AIRPORT
+  AIRLINE
+  CITY
+}
+
+// ============================================
+// AIRLINE BOOKING COMPOSITE TYPES
+// ============================================
+
+type BookingContactInfo {
+  email            String
+  phone            String
+  countryCode      String
+  emergencyContact EmergencyContact?
+}
+
+type EmergencyContact {
+  name         String
+  phone        String
+  relationship String
+}

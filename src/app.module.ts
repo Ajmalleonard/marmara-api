@@ -17,6 +17,7 @@ import { VisaArrangementModule } from './visa-arrangement/visa-arrangement.modul
 import { CarHireModule } from './car-hire/car-hire.module';
 import { SecurityModule } from './security/security.module';
 import { WhatsAppModule } from './whatsapp/whatsapp.module';
+import { AmadeusModule } from './amadeus/amadeus.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { WhatsAppModule } from './whatsapp/whatsapp.module';
     CarHireModule,
     SecurityModule,
     WhatsAppModule,
+    AmadeusModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),

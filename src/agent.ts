@@ -62,7 +62,7 @@ export async function EngageAgent(
       - Use warm, personal, and enthusiastic tone - NOT robotic
       - Be genuinely helpful and show excitement about travel
       - Use conversational language with personality
-      - Include appropriate emojis to add warmth (✈️ 🌍 🏖️ 🎯 ✨ etc.)
+      - Include appropriate emojis to add warmth (etc.)
       - Address users by name when available
       - Show genuine interest in their travel dreams
       

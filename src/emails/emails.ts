@@ -5,196 +5,163 @@ import {
   NEW_BOOKING_EMAIL_TEMPLATE,
   PASSWORD_RESET_REQUEST_TEMPLATE,
   PASSWORD_RESET_SUCCESS_TEMPLATE,
+  PASSWORD_UPDATE_SUCCESS_TEMPLATE,
   VERIFICATION_EMAIL_TEMPLATE,
   WELCOME_EMAIL_TEMPATE,
+  FLIGHT_BOOKING_CONFIRMATION_EMAIL_TEMPLATE,
+  FLIGHT_BOOKING_CANCELLATION_EMAIL_TEMPLATE,
 } from './emailTemplates';
-import { mailtrapClient, sender } from './mailtrap.config';
+import { createNodemailerTransporter, senderInfo } from './nodemailer.config';
 
 export const sendVerificationEmail = async (
   email: string,
-  verificationToken: any,
+  verificationCode: string,
 ) => {
-  const recipient = [{ email }];
+  const transporter = createNodemailerTransporter();
 
   try {
-    const response = await mailtrapClient.send({
-      from: sender,
-      to: recipient,
+    const response = await transporter.sendMail({
+      from: `${senderInfo.name} <${senderInfo.email}>`,
+      to: email,
       subject: 'Verify your email',
       html: VERIFICATION_EMAIL_TEMPLATE.replace(
         '{verificationCode}',
-        verificationToken,
+        verificationCode,
       ),
-      category: 'Email Verification',
     });
 
     console.log('Email sent successfully', response);
   } catch (error) {
-    console.log(`Error sending verification`, error);
-
+    console.error(`Error sending verification`, error);
     throw new Error(`Error sending verification email: ${error}`);
   }
 };
 
-export const sendFeedback = async (email, message) => {
-  const recipient = [
-    {
-      email: process.env.Admin,
-    },
-    {
-      email: process.env.Developer,
-    },
-  ];
+export const sendFeedbackEmail = async (
+  email: string,
+  message: string,
+  usermail: string,
+) => {
+  const transporter = createNodemailerTransporter();
 
   try {
-    const response = await mailtrapClient.send({
-      from: sender,
-      to: recipient,
-      subject: 'Support email from marmaraholidays',
+    const response = await transporter.sendMail({
+      from: `${senderInfo.name} <${senderInfo.email}>`,
+      to: email,
+      subject: 'Feedback from user',
       html: feedback_Mail
         .replace('{email}', email)
-        .replace('{usermail}', email)
-        .replace('{message}', message),
-      category: 'Feedback',
+        .replace('{message}', message)
+        .replace('{usermail}', usermail),
     });
+
     console.log('Email sent successfully', response);
   } catch (error) {
-    console.log(`Error sending Feedback`, error);
+    console.error(`Error sending feedback`, error);
+    throw new Error(`Error sending feedback email: ${error}`);
   }
 };
 
-export const sendWelcomeEmail = async (email, name) => {
-  const recipient = [{ email }];
-  let Mail = WELCOME_EMAIL_TEMPATE.replace('{userName}', name);
-  Mail = Mail.replace('{userEmail}', email);
+export const sendWelcomeEmail = async (email: string, name: string) => {
+  const transporter = createNodemailerTransporter();
 
   try {
-    const response = await mailtrapClient.send({
-      from: sender,
-      to: recipient,
-      subject: 'Welcome to Marmaraholidays',
-      category: 'Welcome emails',
-
-      html: Mail,
+    const response = await transporter.sendMail({
+      from: `${senderInfo.name} <${senderInfo.email}>`,
+      to: email,
+      subject: 'Welcome to Marmara Holidays',
+      html: WELCOME_EMAIL_TEMPATE.replace('{userName}', name).replace(
+        '{userEmail}',
+        email,
+      ),
     });
 
-    console.log('Welcome email sent successfully', response);
+    console.log('Email sent successfully', response);
   } catch (error) {
-    console.log(`Error sending welcome email`, error);
-
+    console.error(`Error sending welcome email`, error);
     throw new Error(`Error sending welcome email: ${error}`);
   }
 };
 
-export const sendPasswordResetEmail = async (email, resetURL) => {
-  const recipient = [{ email }];
+export const sendPasswordResetEmail = async (email: string, resetURL: string) => {
+  const transporter = createNodemailerTransporter();
 
   try {
-    const response = await mailtrapClient.send({
-      from: sender,
-      to: recipient,
+    const response = await transporter.sendMail({
+      from: `${senderInfo.name} <${senderInfo.email}>`,
+      to: email,
       subject: 'Reset your password',
       html: PASSWORD_RESET_REQUEST_TEMPLATE.replace('{resetURL}', resetURL),
-      category: 'Password Reset',
     });
-  } catch (error) {
-    console.log(`Error sending password reset email`, error);
 
+    console.log('Email sent successfully', response);
+  } catch (error) {
+    console.error(`Error sending password reset email`, error);
     throw new Error(`Error sending password reset email: ${error}`);
   }
 };
 
-export const sendResetSuccessEmail = async (email) => {
-  const recipient = [{ email }];
+export const sendResetSuccessEmail = async (email: string) => {
+  const transporter = createNodemailerTransporter();
 
   try {
-    const response = await mailtrapClient.send({
-      from: sender,
-      to: recipient,
+    const response = await transporter.sendMail({
+      from: `${senderInfo.name} <${senderInfo.email}>`,
+      to: email,
       subject: 'Password Reset Successful',
       html: PASSWORD_RESET_SUCCESS_TEMPLATE,
-      category: 'Password Reset',
     });
 
-    console.log('Password reset email sent successfully', response);
+    console.log('Email sent successfully', response);
   } catch (error) {
-    console.log(`Error sending password reset success email`, error);
-
+    console.error(`Error sending password reset success email`, error);
     throw new Error(`Error sending password reset success email: ${error}`);
   }
 };
 
-export const sendBookingConfirmationEmail = async (email, bookingData) => {
-  const recipient = [{ email }];
+export const sendBookingConfirmationEmail = async (
+  email: string,
+  bookingDetails: any,
+) => {
+  const transporter = createNodemailerTransporter();
 
   try {
-    let emailContent = BOOKING_CONFIRMATION_EMAIL_TEMPLATE;
-
-    emailContent = emailContent.replace('{name}', bookingData.name);
-    emailContent = emailContent.replace('{id}', bookingData.packageId);
-    emailContent = emailContent.replace(
-      '{packageName}',
-      bookingData.packageName,
-    );
-    emailContent = emailContent.replace('{startDate}', bookingData.startDate);
-    emailContent = emailContent.replace('{endDate}', bookingData.endDate);
-    emailContent = emailContent.replace('{adults}', bookingData.adults);
-    emailContent = emailContent.replace('{children}', bookingData.children);
-    emailContent = emailContent.replace('{Infants}', bookingData.infants);
-    emailContent = emailContent.replace('{pets}', bookingData.pets);
-    emailContent = emailContent.replace('{price}', bookingData.price);
-
-    const response = await mailtrapClient.send({
-      from: sender,
-      to: recipient,
+    const response = await transporter.sendMail({
+      from: `${senderInfo.name} <${senderInfo.email}>`,
+      to: email,
       subject: 'Booking Confirmation - Marmara Holidays',
-      html: emailContent,
-      category: 'Booking Confirmation',
+      html: BOOKING_CONFIRMATION_EMAIL_TEMPLATE,
     });
 
     console.log('Booking confirmation email sent successfully', response);
-    return response;
   } catch (error) {
-    console.log(`Error sending booking confirmation email`, error);
+    console.error(`Error sending booking confirmation email`, error);
+    throw new Error(`Error sending booking confirmation email: ${error}`);
   }
 };
-export const sendAdminBookingEmail = async (bookingData) => {
-  const recipient = [
-    {
-      email: 'ajmalmaker@icloud.com',
-    },
-  ];
+
+export const sendAdminBookingEmail = async (
+  adminEmail: string,
+  bookingDetails: any,
+) => {
+  const transporter = createNodemailerTransporter();
 
   try {
-    let emailContent = NEW_BOOKING_EMAIL_TEMPLATE;
-
-    emailContent = emailContent.replace('{name}', bookingData.name);
-    emailContent = emailContent.replace(
-      '{packageName}',
-      bookingData.packageName,
-    );
-    emailContent = emailContent.replace('{startDate}', bookingData.startDate);
-    emailContent = emailContent.replace('{endDate}', bookingData.endDate);
-    emailContent = emailContent.replace('{adults}', bookingData.adults);
-    emailContent = emailContent.replace('{children}', bookingData.children);
-    emailContent = emailContent.replace('{infants}', bookingData.infants);
-    emailContent = emailContent.replace('{pets}', bookingData.pets);
-    emailContent = emailContent.replace('{price}', bookingData.price);
-    emailContent = emailContent.replace('{id}', bookingData.packageId);
-    emailContent = emailContent.replace('{email}', bookingData.email);
-
-    const response = await mailtrapClient.send({
-      from: sender,
-      to: recipient,
-      subject: 'Booking Confirmation - Marmara Holidays',
-      html: emailContent,
-      category: 'New Booking',
+    const response = await transporter.sendMail({
+      from: `${senderInfo.name} <${senderInfo.email}>`,
+      to: adminEmail,
+      subject: 'New Booking Received - Marmara Holidays',
+      html: `
+        <h2>New Booking Received</h2>
+        <p>A new booking has been received with the following details:</p>
+        <pre>${JSON.stringify(bookingDetails, null, 2)}</pre>
+      `,
     });
 
-    console.log('Booking confirmation email sent successfully', response);
-    return response;
+    console.log('Admin booking email sent successfully', response);
   } catch (error) {
-    console.log(`Error sending booking confirmation email`, error);
+    console.error(`Error sending admin booking email`, error);
+    throw new Error(`Error sending admin booking email: ${error}`);
   }
 };
 
@@ -343,12 +310,12 @@ export const sendAdminContactEmail = async (data: CreateContactDto) => {
 `;
 
   try {
-    const response = await mailtrapClient.send({
-      from: sender,
-      to: recipient,
+    const transporter = createNodemailerTransporter();
+    const response = await transporter.sendMail({
+      from: `${senderInfo.name} <${senderInfo.email}>`,
+      to: 'info@marmaraholidays.com',
       subject: 'New Contact Request',
       html: htmlTemplate,
-      category: 'Contact',
     });
     console.log('Contact request email sent successfully', response);
     return response;
@@ -412,12 +379,12 @@ export const sendClientContactConfirmationEmail = async (
 </html>`;
 
   try {
-    const response = await mailtrapClient.send({
-      from: sender,
-      to: recipient,
+    const transporter = createNodemailerTransporter();
+    const response = await transporter.sendMail({
+      from: `${senderInfo.name} <${senderInfo.email}>`,
+      to: email,
       subject: 'We Received Your Request - Marmara Travel',
       html: htmlTemplate,
-      category: 'Contact Confirmation',
     });
     console.log(
       'Contact confirmation email sent to client successfully',
@@ -427,5 +394,128 @@ export const sendClientContactConfirmationEmail = async (
   } catch (error) {
     console.error('Error sending contact confirmation email', error);
     throw new Error(`Error sending contact confirmation email: ${error}`);
+  }
+};
+
+export const sendContactEmail = async (
+  name: string,
+  email: string,
+  subject: string,
+  message: string,
+) => {
+  const transporter = createNodemailerTransporter();
+
+  try {
+    const response = await transporter.sendMail({
+      from: `${senderInfo.name} <${senderInfo.email}>`,
+      to: 'info@marmaraholidays.com',
+      subject: `Contact Form: ${subject}`,
+      html: `
+        <h2>New Contact Form Submission</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Subject:</strong> ${subject}</p>
+        <p><strong>Message:</strong></p>
+        <p>${message}</p>
+      `,
+    });
+
+    console.log('Contact email sent successfully', response);
+  } catch (error) {
+    console.error(`Error sending contact email`, error);
+    throw new Error(`Error sending contact email: ${error}`);
+  }
+};
+
+// New flight booking email functions
+export const sendFlightBookingConfirmationEmail = async (
+  email: string,
+  bookingData: {
+    customerName: string;
+    bookingReference: string;
+    totalAmount: string;
+    paymentStatus: string;
+    departureCity: string;
+    departureCode: string;
+    arrivalCity: string;
+    arrivalCode: string;
+    departureDate: string;
+    departureTime: string;
+    arrivalDate: string;
+    arrivalTime: string;
+    flightNumber: string;
+    airline: string;
+    passengerDetails: string;
+    bookingId: string;
+    customerEmail: string;
+  },
+) => {
+  const transporter = createNodemailerTransporter();
+
+  try {
+    let emailHtml = FLIGHT_BOOKING_CONFIRMATION_EMAIL_TEMPLATE;
+    
+    // Replace all placeholders
+    Object.keys(bookingData).forEach(key => {
+      const placeholder = `{${key}}`;
+      emailHtml = emailHtml.replace(new RegExp(placeholder, 'g'), bookingData[key]);
+    });
+
+    const response = await transporter.sendMail({
+      from: `${senderInfo.name} <${senderInfo.email}>`,
+      to: email,
+      subject: `Flight Booking Confirmed - ${bookingData.bookingReference}`,
+      html: emailHtml,
+    });
+
+    console.log('Flight booking confirmation email sent successfully', response);
+  } catch (error) {
+    console.error(`Error sending flight booking confirmation email`, error);
+    throw new Error(`Error sending flight booking confirmation email: ${error}`);
+  }
+};
+
+export const sendFlightBookingCancellationEmail = async (
+  email: string,
+  cancellationData: {
+    customerName: string;
+    bookingReference: string;
+    cancellationDate: string;
+    cancellationReason: string;
+    refundStatus: string;
+    refundAmount?: string;
+    departureCity: string;
+    departureCode: string;
+    arrivalCity: string;
+    arrivalCode: string;
+    departureDate: string;
+    departureTime: string;
+    flightNumber: string;
+    airline: string;
+    customerEmail: string;
+  },
+) => {
+  const transporter = createNodemailerTransporter();
+
+  try {
+    let emailHtml = FLIGHT_BOOKING_CANCELLATION_EMAIL_TEMPLATE;
+    
+    // Replace all placeholders
+    Object.keys(cancellationData).forEach(key => {
+      const placeholder = `{${key}}`;
+      emailHtml = emailHtml.replace(new RegExp(placeholder, 'g'), cancellationData[key] || '');
+    });
+
+    const response = await transporter.sendMail({
+      from: `${senderInfo.name} <${senderInfo.email}>`,
+      to: email,
+      subject: `Flight Booking Cancelled - ${cancellationData.bookingReference}`,
+      html: emailHtml,
+    });
+
+    console.log('Flight booking cancellation email sent successfully', response);
+  } catch (error) {
+    console.error(`Error sending flight booking cancellation email`, error);
+    throw new Error(`Error sending flight booking cancellation email: ${error}`);
   }
 };

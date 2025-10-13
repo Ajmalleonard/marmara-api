@@ -31,6 +31,151 @@ export const VERIFICATION_EMAIL_TEMPLATE = `
 </body>
 </html>
 `;
+
+export const FLIGHT_BOOKING_CONFIRMATION_EMAIL_TEMPLATE = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <meta name="forced-color-adjust" content="none">
+  <title>Flight Booking Confirmation</title>
+</head>
+<body style="font-family: Arial, sans-serif; color-scheme: light; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f0f0f0;">
+  <div style="background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+    <div style="background: linear-gradient(135deg, #6366F1, #4338CA); padding: 30px; text-align: center;">
+      <h1 style="color: white; margin: 0; font-size: 28px; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);">✈️ Flight Booking Confirmed!</h1>
+    </div>
+    <div style="background-color: #ffffff; padding: 30px;">
+      <p style="font-size: 16px;">Hello {customerName},</p>
+      <p style="font-size: 16px;">Great news! Your flight booking has been confirmed. Here are your booking details:</p>
+      
+      <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="color: #6366F1; margin-top: 0;">Booking Information</h3>
+        <p><strong>Booking Reference:</strong> {bookingReference}</p>
+        <p><strong>Total Amount:</strong> {totalAmount}</p>
+        <p><strong>Payment Status:</strong> {paymentStatus}</p>
+      </div>
+
+      <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="color: #6366F1; margin-top: 0;">Flight Details</h3>
+        <p><strong>From:</strong> {departureCity} ({departureCode})</p>
+        <p><strong>To:</strong> {arrivalCity} ({arrivalCode})</p>
+        <p><strong>Departure:</strong> {departureDate} at {departureTime}</p>
+        <p><strong>Arrival:</strong> {arrivalDate} at {arrivalTime}</p>
+        <p><strong>Flight Number:</strong> {flightNumber}</p>
+        <p><strong>Airline:</strong> {airline}</p>
+      </div>
+
+      <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="color: #6366F1; margin-top: 0;">Passenger Information</h3>
+        {passengerDetails}
+      </div>
+
+      <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 8px; margin: 20px 0;">
+        <h4 style="color: #856404; margin-top: 0;">Important Reminders:</h4>
+        <ul style="color: #856404; margin: 0;">
+          <li>Please arrive at the airport at least 2 hours before domestic flights and 3 hours before international flights</li>
+          <li>Ensure your passport is valid for at least 6 months from travel date</li>
+          <li>Check visa requirements for your destination</li>
+          <li>Review baggage allowances with your airline</li>
+        </ul>
+      </div>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="https://www.marmaraholidays.com/bookings/{bookingId}" 
+           style="background-color: #6366F1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">
+          View Booking Details
+        </a>
+      </div>
+
+      <p style="font-size: 16px;">If you have any questions or need to make changes to your booking, please contact our customer service team.</p>
+      <p style="font-size: 16px;">Have a wonderful trip!</p>
+      <p style="font-size: 16px;">Best regards,<br>The Marmara Holidays Team</p>
+    </div>
+  </div>
+  <div style="text-align: center; margin-top: 20px; color: #666; font-size: 14px;">
+    <p>This email was sent to {customerEmail}. This is an automated message, please do not reply to this email.</p>
+    <p>© 2024 Marmara Holidays. All rights reserved.</p>
+  </div>
+</body>
+</html>
+`;
+
+export const FLIGHT_BOOKING_CANCELLATION_EMAIL_TEMPLATE = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <meta name="forced-color-adjust" content="none">
+  <title>Flight Booking Cancellation</title>
+</head>
+<body style="font-family: Arial, sans-serif; color-scheme: light; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f0f0f0;">
+  <div style="background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+    <div style="background: linear-gradient(135deg, #dc2626, #b91c1c); padding: 30px; text-align: center;">
+      <h1 style="color: white; margin: 0; font-size: 28px; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);">✈️ Flight Booking Cancelled</h1>
+    </div>
+    <div style="background-color: #ffffff; padding: 30px;">
+      <p style="font-size: 16px;">Hello {customerName},</p>
+      <p style="font-size: 16px;">We're writing to confirm that your flight booking has been cancelled as requested. Here are the cancellation details:</p>
+      
+      <div style="background-color: #fef2f2; border: 1px solid #fecaca; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="color: #dc2626; margin-top: 0;">Cancellation Information</h3>
+        <p><strong>Booking Reference:</strong> {bookingReference}</p>
+        <p><strong>Cancellation Date:</strong> {cancellationDate}</p>
+        <p><strong>Cancellation Reason:</strong> {cancellationReason}</p>
+        <p><strong>Refund Status:</strong> {refundStatus}</p>
+        {refundAmount && <p><strong>Refund Amount:</strong> {refundAmount}</p>}
+      </div>
+
+      <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="color: #6366F1; margin-top: 0;">Original Flight Details</h3>
+        <p><strong>From:</strong> {departureCity} ({departureCode})</p>
+        <p><strong>To:</strong> {arrivalCity} ({arrivalCode})</p>
+        <p><strong>Departure:</strong> {departureDate} at {departureTime}</p>
+        <p><strong>Flight Number:</strong> {flightNumber}</p>
+        <p><strong>Airline:</strong> {airline}</p>
+      </div>
+
+      {refundAmount && (
+        <div style="background-color: #d1fae5; border: 1px solid #a7f3d0; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <h4 style="color: #065f46; margin-top: 0;">Refund Information:</h4>
+          <p style="color: #065f46; margin: 0;">Your refund of {refundAmount} will be processed within 5-10 business days and will be credited back to your original payment method.</p>
+        </div>
+      )}
+
+      <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 8px; margin: 20px 0;">
+        <h4 style="color: #856404; margin-top: 0;">What's Next:</h4>
+        <ul style="color: #856404; margin: 0;">
+          <li>If you paid by credit card, the refund will appear on your statement within 5-10 business days</li>
+          <li>For other payment methods, processing times may vary</li>
+          <li>You'll receive a separate email confirmation once the refund is processed</li>
+          <li>Contact us if you don't see the refund within the expected timeframe</li>
+        </ul>
+      </div>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="https://www.marmaraholidays.com/search-flights" 
+           style="background-color: #6366F1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">
+          Book Another Flight
+        </a>
+      </div>
+
+      <p style="font-size: 16px;">If you have any questions about this cancellation or need assistance with a new booking, please don't hesitate to contact our customer service team.</p>
+      <p style="font-size: 16px;">We're sorry to see this trip cancelled and hope to serve you again in the future.</p>
+      <p style="font-size: 16px;">Best regards,<br>The Marmara Holidays Team</p>
+    </div>
+  </div>
+  <div style="text-align: center; margin-top: 20px; color: #666; font-size: 14px;">
+    <p>This email was sent to {customerEmail}. This is an automated message, please do not reply to this email.</p>
+    <p>© 2024 Marmara Holidays. All rights reserved.</p>
+  </div>
+</body>
+</html>
+`;
 export const feedback_Mail = `
 <!DOCTYPE html>
 <html lang="en">
