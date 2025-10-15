@@ -16,7 +16,7 @@ import { join } from 'path';
 import { VisaArrangementModule } from './visa-arrangement/visa-arrangement.module';
 import { CarHireModule } from './car-hire/car-hire.module';
 import { SecurityModule } from './security/security.module';
-import { WhatsAppModule } from './whatsapp/whatsapp.module';
+import { WhatsAppJsModule } from './whatsappjs/whatsappjs.module';
 import { AmadeusModule } from './amadeus/amadeus.module';
 
 @Module({
@@ -35,7 +35,7 @@ import { AmadeusModule } from './amadeus/amadeus.module';
     VisaArrangementModule,
     CarHireModule,
     SecurityModule,
-    WhatsAppModule,
+    WhatsAppJsModule,
     AmadeusModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,

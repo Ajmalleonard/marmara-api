@@ -22,17 +22,63 @@ export async function EngageAgent(
   onStream: StreamCallback,
   userName?: string,
 ) {
-  // Get current time for personalized greetings
+  // 1. Analyze the user's message to determine intent
+  const analysisPrompt = `
+    Analyze the following user message to determine the user's intent. The user message is: "${userMessage}"
+
+    Possible intents are:
+    - "greeting": The user is just saying hello.
+    - "service_inquiry": The user is asking about one of our services (VISA, tickets, hotels, tours, etc.).
+    - "contact_request": The user is asking for contact information.
+    - "chit_chat": The user is making small talk.
+    - "other": The user's intent is unclear or doesn't fit into the other categories.
+
+    Based on the message, what is the user's primary intent? Respond with one of the intents listed above.
+  `;
+
+  const analysisStream = await groq.chat.completions.create({
+    messages: [
+      {
+        role: 'system',
+        content: 'You are an intent analysis expert.',
+      },
+      {
+        role: 'user',
+        content: analysisPrompt,
+      },
+    ],
+    stream: false, // We need the full response to analyze the intent
+    model: 'openai/gpt-oss-120b',
+    temperature: 0.2,
+  });
+
+  const intent = analysisStream.choices[0]?.message?.content.trim() || 'other';
+
+  // 2. Decide if the bot can help
+  let canHelp = false;
+  if (intent === 'service_inquiry' || intent === 'contact_request') {
+    canHelp = true;
+  }
+
+  // 3. Generate a response
   const now = new Date();
   const hour = now.getHours();
   const timeOfDay = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
-  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-  
-  const userNameContext = userName ? `The user's name is ${userName}. Address them personally when appropriate.` : 'No user name available.';
-  
-  const prompt = `
+  const greeting =
+    hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+
+  const userNameContext = userName
+    ? `The user's name is ${userName}. Address them personally when appropriate.`
+    : 'No user name available.';
+
+  let responsePrompt = '';
+
+  if (canHelp) {
+    responsePrompt = `
       You are Sara from Marmara Travels team - a warm, professional, and personable travel assistant. The user message is: "${userMessage}"
       
+      The user is asking about our services. Provide a helpful and enthusiastic response.
+
       PERSONALIZATION CONTEXT:
       - Current time of day: ${timeOfDay} (use "${greeting}" for greetings)
       - ${userNameContext}
@@ -82,6 +128,13 @@ export async function EngageAgent(
       • Use "we're thrilled to help" instead of "how can I assist"
       • Make them feel special and valued
     `;
+  } else {
+    responsePrompt = `
+      You are Sara from Marmara Travels. The user has sent a message that is not related to our services. Respond politely and professionally, and gently guide the conversation back to our travel services if appropriate.
+
+      The user message is: "${userMessage}"
+    `;
+  }
 
   const stream = await groq.chat.completions.create({
     messages: [
@@ -92,13 +145,17 @@ export async function EngageAgent(
       },
       {
         role: 'user',
-        content: prompt,
+        content: responsePrompt,
       },
     ],
     stream: true,
-    reasoning_format: 'hidden',
-    model: 'openai/gpt-oss-120b',
+    model: 'groq/compound-mini',
     temperature: 1,
+    compound_custom: {
+      tools: {
+        enabled_tools: ['web_search', 'code_interpreter', 'visit_website'],
+      },
+    },
   });
 
   for await (const chunk of stream) {

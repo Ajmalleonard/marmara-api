@@ -5,6 +5,8 @@ services/*/node_modules/
 gateway/node_modules/
 
 whatsapp-auth/
+whatsappjs-auth/
+.wwebjs_cache/
 
 # Environment variables
 .env
