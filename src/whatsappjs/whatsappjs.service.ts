@@ -697,17 +697,23 @@ Instructions:
         let lastQuestion = '';
 
         // Check if user has provided all necessary information
+        this.logger.debug(`Complete info check for ${senderNumber}: hasCompleteInfo=${hasCompleteInfo}, mem.hasCompleteInfo=${mem.hasCompleteInfo}`);
+        this.logger.debug(`Client details for ${senderNumber}: ${newClientDetails}`);
+        
         if (hasCompleteInfo && !mem.hasCompleteInfo) {
           // User just completed providing all info - send notification to sales team
+          this.logger.log(`🎯 Complete information detected for ${senderNumber}! Sending sales notification...`);
+          this.logger.debug(`Sales notification details - Phone: ${senderNumber}, Name: ${name || mem.userName}, Details: ${newClientDetails}`);
+          
           try {
             await sendSalesNotificationEmail(
               newClientDetails,
               senderNumber,
               name || mem.userName
             );
-            this.logger.log(`Sales notification sent for ${senderNumber}`);
+            this.logger.log(`✅ Sales notification sent successfully for ${senderNumber}`);
           } catch (emailError) {
-            this.logger.error(`Failed to send sales notification: ${emailError}`);
+            this.logger.error(`❌ Failed to send sales notification for ${senderNumber}: ${emailError}`);
           }
           
           fullResponse = "Thanks so much! Our team will be back with details soon. 🌟";
