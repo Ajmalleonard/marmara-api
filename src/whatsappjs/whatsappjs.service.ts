@@ -151,6 +151,299 @@ export class WhatsAppJsService implements OnModuleInit, OnModuleDestroy {
     return details.join(' | ');
   }
 
+  // Get or create conversation in database
+  private async getOrCreateConversation(phoneNumber: string) {
+    try {
+      let conversation = await this.prisma.conversation.findUnique({
+        where: { phoneNumber },
+        include: {
+          messages: {
+            orderBy: { timestamp: 'desc' },
+            take: 20, // Get last 20 messages for context
+          },
+        },
+      });
+
+      if (!conversation) {
+        conversation = await this.prisma.conversation.create({
+          data: {
+            phoneNumber,
+            status: 'ACTIVE',
+            context: {
+              customerType: 'new',
+              interests: [],
+              previousBookings: [],
+              conversationFlow: 'greeting',
+              isHumanTakeover: false,
+              analytics: {},
+            },
+          },
+          include: {
+            messages: true,
+          },
+        });
+      }
+
+      return conversation;
+    } catch (error) {
+      this.logger.error(`Error getting/creating conversation: ${error}`);
+      return null;
+    }
+  }
+
+  // Store message in database
+  private async storeMessage(
+    conversationId: string,
+    content: string,
+    sender: 'USER' | 'AI',
+    intent?: string,
+    entities?: string[],
+  ) {
+    try {
+      return await this.prisma.message.create({
+        data: {
+          conversationId,
+          content,
+          sender,
+          intent,
+          entities: entities || [],
+          timestamp: new Date(),
+        },
+      });
+    } catch (error) {
+      this.logger.error(`Error storing message: ${error}`);
+      return null;
+    }
+  }
+
+  // Build conversation history for AI context
+  private buildConversationHistory(messages: any[]): string {
+    if (!messages || messages.length === 0) return 'New conversation';
+
+    return messages
+      .reverse() // Show chronological order
+      .map((msg) => `${msg.sender}: ${msg.content}`)
+      .join('\n');
+  }
+
+  // Enhanced context-aware AI response generation
+  private async generateContextAwareAIResponse(
+    messageText: string,
+    conversation: any,
+    userName?: string,
+  ): Promise<{ response: string; lastQuestion?: string }> {
+    try {
+      // Build conversation history for context
+      const conversationHistory = this.buildConversationHistory(conversation.messages);
+      
+      // Get current context
+      const context = conversation.context || {};
+      
+      // Detect intent and language
+      const intent = this.detectIntent(messageText);
+      const language = this.detectSwahili(messageText) ? 'sw' : 'en';
+
+      // Create enhanced context prompt for AI
+      const contextPrompt = `
+CONVERSATION CONTEXT:
+- Customer: ${userName || 'Unknown'}
+- Phone: ${conversation.phoneNumber}
+- Customer Type: ${context.customerType || 'new'}
+- Conversation Flow: ${context.conversationFlow || 'greeting'}
+- Previous Interests: ${context.interests?.join(', ') || 'None'}
+- Language: ${language}
+
+CONVERSATION HISTORY:
+${conversationHistory}
+
+CURRENT MESSAGE: "${messageText}"
+DETECTED INTENT: ${intent}
+
+Instructions: 
+1. Maintain conversation context and remember what was discussed
+2. If you asked a question previously, acknowledge the user's response appropriately
+3. Use the customer's name if known: ${userName || ''}
+4. Ask follow-up questions based on the conversation flow
+5. Remember client details and build upon previous responses
+6. For service inquiries, gather: service type, destination, dates, group size, contact details
+`;
+
+      let fullResponse = '';
+      let lastQuestion = '';
+
+      await EngageAgent(
+        contextPrompt,
+        (chunk: string) => {
+          fullResponse += chunk;
+        },
+        userName,
+        true, // Always treat as context-aware
+      );
+
+      // Extract the last question asked (if any) for tracking
+      const questionMatch = fullResponse.match(/([^.!]*\?[^.!]*)/g);
+      if (questionMatch && questionMatch.length > 0) {
+        lastQuestion = questionMatch[questionMatch.length - 1].trim();
+      }
+
+      return { response: fullResponse, lastQuestion };
+    } catch (error) {
+      this.logger.error(`Error generating context-aware response: ${error}`);
+      return { response: "I'm here to help! Could you please tell me more about what you need?" };
+    }
+  }
+
+  // Detect intent from message
+  private detectIntent(message: string): string {
+    const text = message.toLowerCase();
+    
+    if (text.includes('visa')) return 'visa_inquiry';
+    if (text.includes('ticket') || text.includes('flight')) return 'flight_inquiry';
+    if (text.includes('hotel') || text.includes('accommodation')) return 'hotel_inquiry';
+    if (text.includes('safari') || text.includes('tour')) return 'tour_inquiry';
+    if (text.includes('cargo') || text.includes('shipping')) return 'cargo_inquiry';
+    if (text.includes('hello') || text.includes('hi') || text.includes('hey')) return 'greeting';
+    if (text.includes('thank') || text.includes('bye')) return 'closing';
+    
+    return 'general_inquiry';
+  }
+
+  // Detect Swahili language
+  private detectSwahili(message: string): boolean {
+    const swahiliKeywords = [
+      'habari', 'mambo', 'poa', 'sawa', 'asante', 'karibu', 'pole', 'hujambo',
+      'safari', 'tembelea', 'hali', 'vizuri', 'nzuri', 'salama'
+    ];
+    
+    const text = message.toLowerCase();
+    return swahiliKeywords.some(keyword => text.includes(keyword));
+  }
+
+  // Update conversation context with new information
+  private async updateConversationContextEnhanced(
+    conversationId: string,
+    userMessage: string,
+    aiResponse: string,
+    intent: string,
+    userName?: string,
+  ) {
+    try {
+      const conversation = await this.prisma.conversation.findUnique({
+        where: { id: conversationId },
+      });
+
+      if (!conversation) return;
+
+      const currentContext = (conversation.context as any) || {};
+      
+      // Extract entities from user message
+      const entities = this.extractEntitiesFromMessage(userMessage);
+      
+      // Update context based on conversation flow
+      const updatedContext = {
+        ...currentContext,
+        customerType: this.determineCustomerType(currentContext.customerType, intent),
+        lastIntent: intent,
+        conversationFlow: this.updateConversationFlow(currentContext.conversationFlow, intent),
+        interests: this.updateInterests(currentContext.interests || [], entities.destinations),
+        travelDates: entities.dates.length > 0 ? entities.dates[0] : currentContext.travelDates,
+        groupSize: entities.groupSize || currentContext.groupSize,
+        preferences: {
+          ...currentContext.preferences,
+          language: this.detectSwahili(userMessage) ? 'sw' : 'en',
+        },
+        analytics: {
+          ...currentContext.analytics,
+          totalMessages: (currentContext.analytics?.totalMessages || 0) + 1,
+          lastActivity: new Date(),
+        },
+      };
+
+      await this.prisma.conversation.update({
+        where: { id: conversationId },
+        data: {
+          customerName: userName || conversation.customerName,
+          context: { set: updatedContext },
+          lastMessageAt: new Date(),
+        },
+      });
+    } catch (error) {
+      this.logger.error(`Error updating enhanced conversation context: ${error}`);
+    }
+  }
+
+  // Extract entities from message
+  private extractEntitiesFromMessage(message: string) {
+    const text = message.toLowerCase();
+    const entities = {
+      destinations: [] as string[],
+      dates: [] as string[],
+      groupSize: null as number | null,
+    };
+
+    // Extract destinations
+    const destinations = ['dubai', 'zanzibar', 'tanzania', 'kenya', 'mombasa', 'nairobi', 'arusha'];
+    entities.destinations = destinations.filter(dest => text.includes(dest));
+
+    // Extract dates
+    const datePatterns = [
+      /(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/g,
+      /(january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{1,2}/gi,
+    ];
+    
+    for (const pattern of datePatterns) {
+      const matches = message.match(pattern);
+      if (matches) {
+        entities.dates.push(...matches);
+        break;
+      }
+    }
+
+    // Extract group size
+    const groupMatch = text.match(/(\d+)\s*(people|person|traveler|passenger)/);
+    if (groupMatch) {
+      entities.groupSize = parseInt(groupMatch[1]);
+    }
+
+    return entities;
+  }
+
+  // Determine customer type based on interaction
+  private determineCustomerType(currentType: string, intent: string): string {
+    if (currentType === 'vip') return 'vip';
+    if (intent.includes('booking') || intent.includes('payment')) return 'returning';
+    if (currentType === 'new' && intent !== 'greeting') return 'ongoing';
+    return currentType || 'new';
+  }
+
+  // Update conversation flow
+  private updateConversationFlow(currentFlow: string, intent: string): string {
+    if (intent === 'greeting') return 'greeting';
+    if (intent.includes('inquiry')) return 'inquiry';
+    if (intent.includes('booking')) return 'negotiation';
+    if (intent === 'closing') return 'closing';
+    return currentFlow || 'inquiry';
+  }
+
+  // Update interests based on destinations mentioned
+  private updateInterests(currentInterests: string[], newDestinations: string[]): string[] {
+    const interests = [...currentInterests];
+    
+    newDestinations.forEach(dest => {
+      if (dest.includes('safari') || dest.includes('serengeti')) {
+        if (!interests.includes('safari')) interests.push('safari');
+      }
+      if (dest.includes('beach') || dest.includes('zanzibar')) {
+        if (!interests.includes('beach')) interests.push('beach');
+      }
+      if (dest.includes('culture') || dest.includes('stone town')) {
+        if (!interests.includes('culture')) interests.push('culture');
+      }
+    });
+
+    return interests;
+  }
+
   // Check if client has provided sufficient information
   private hasCompleteInformation(clientDetails: string): boolean {
     if (!clientDetails) return false;
@@ -361,46 +654,48 @@ export class WhatsAppJsService implements OnModuleInit, OnModuleDestroy {
       const name = this.extractNameFromMessage(message.body);
       const lastSeenAt = new Date().toISOString();
 
-      const mem = this.conversationMemory.get(senderNumber) || {};
-      const messageCount = (mem.messageCount || 0) + 1;
-      const askedName = mem.askedName || false;
-      const shouldAskName = !name && messageCount >= 3 && !askedName;
-
-      // Check if this is a follow-up to a recent AI response (within 5 minutes)
-      const now = Date.now();
-      const isRecentFollowUp = mem.lastAIResponseTime && 
-        (now - mem.lastAIResponseTime) < 5 * 60 * 1000; // 5 minutes
-
-      // Extract and accumulate client details
-      const newClientDetails = this.extractClientDetails(message.body, mem.clientDetails);
-      const hasCompleteInfo = this.hasCompleteInformation(newClientDetails);
-
-      // Update memory with unified approach
-      const updatedMem = {
-        ...mem,
-        userName: name || mem.userName,
-        clientDetails: newClientDetails,
-        lastSeenAt,
-        messageCount,
-        askedName: askedName || shouldAskName,
-        expectingReply: false, // Reset after receiving message
-        hasCompleteInfo,
-      };
-
-      this.conversationMemory.set(senderNumber, updatedMem);
-      await this.updateConversationContext(senderNumber, {
-        userName: updatedMem.userName,
-        clientDetails: updatedMem.clientDetails,
-        lastSeenAt,
-        lastMessage: message.body,
-        messageCount,
-        askedName: askedName || shouldAskName,
-        hasCompleteInfo: updatedMem.hasCompleteInfo,
-      });
-
-      let fullResponse = '';
-
       try {
+        // Get or create conversation in database
+        const conversation = await this.getOrCreateConversation(senderNumber);
+        if (!conversation) {
+          this.logger.error(`Failed to get/create conversation for ${senderNumber}`);
+          return;
+        }
+
+        // Detect intent and extract entities
+        const intent = this.detectIntent(message.body);
+        const entities = this.extractEntitiesFromMessage(message.body);
+
+        // Store user message in database
+        await this.storeMessage(conversation.id, message.body, 'USER', intent, entities.destinations);
+
+        // Update in-memory conversation tracking
+        const mem = this.conversationMemory.get(senderNumber) || {};
+        const messageCount = (mem.messageCount || 0) + 1;
+        const askedName = mem.askedName || false;
+        const shouldAskName = !name && messageCount >= 3 && !askedName;
+
+        // Add to conversation history
+        const conversationHistory = mem.conversationHistory || [];
+        conversationHistory.push({
+          sender: 'USER',
+          message: message.body,
+          timestamp: new Date(),
+          intent,
+        });
+
+        // Keep only last 10 messages in memory for performance
+        if (conversationHistory.length > 10) {
+          conversationHistory.shift();
+        }
+
+        // Extract and accumulate client details
+        const newClientDetails = this.extractClientDetails(message.body, mem.clientDetails);
+        const hasCompleteInfo = this.hasCompleteInformation(newClientDetails);
+
+        let fullResponse = '';
+        let lastQuestion = '';
+
         // Check if user has provided all necessary information
         if (hasCompleteInfo && !mem.hasCompleteInfo) {
           // User just completed providing all info - send notification to sales team
@@ -408,7 +703,7 @@ export class WhatsAppJsService implements OnModuleInit, OnModuleDestroy {
             await sendSalesNotificationEmail(
               newClientDetails,
               senderNumber,
-              updatedMem.userName
+              name || mem.userName
             );
             this.logger.log(`Sales notification sent for ${senderNumber}`);
           } catch (emailError) {
@@ -417,35 +712,82 @@ export class WhatsAppJsService implements OnModuleInit, OnModuleDestroy {
           
           fullResponse = "Thanks so much! Our team will be back with details soon. 🌟";
         } else {
-          await EngageAgent(
+          // Generate context-aware AI response using conversation history
+          const aiResponse = await this.generateContextAwareAIResponse(
             message.body,
-            (chunk: string) => {
-              fullResponse += chunk;
-            },
-            name,
-            isRecentFollowUp, // Pass continuity flag to agent
+            conversation,
+            name || mem.userName
           );
+          fullResponse = aiResponse.response;
+          lastQuestion = aiResponse.lastQuestion || '';
         }
 
         if (shouldAskName && !hasCompleteInfo) {
-          const ask =
-            'May I know your name please? It helps me assist you better.';
+          const ask = 'May I know your name please? It helps me assist you better.';
           fullResponse = fullResponse ? `${fullResponse}\n${ask}` : ask;
         }
 
         if (fullResponse) {
+          // Send response to user
           await this.sendMessage(senderNumber, fullResponse);
-          
-          // Update memory to track that we just sent a response
-          const currentMem = this.conversationMemory.get(senderNumber) || {};
-          this.conversationMemory.set(senderNumber, {
-            ...currentMem,
+
+          // Store AI response in database
+          await this.storeMessage(conversation.id, fullResponse, 'AI', intent);
+
+          // Add AI response to conversation history
+          conversationHistory.push({
+            sender: 'AI',
+            message: fullResponse,
+            timestamp: new Date(),
+            intent,
+          });
+
+          // Update enhanced conversation context in database
+          await this.updateConversationContextEnhanced(
+            conversation.id,
+            message.body,
+            fullResponse,
+            intent,
+            name || mem.userName
+          );
+
+          // Update in-memory conversation tracking
+          const updatedMem = {
+            ...mem,
+            userName: name || mem.userName,
+            clientDetails: newClientDetails,
+            lastSeenAt,
+            messageCount,
+            askedName: askedName || shouldAskName,
             lastAIResponseTime: Date.now(),
             expectingReply: true,
+            hasCompleteInfo,
+            lastQuestion, // Track the last question asked
+            conversationHistory,
+          };
+
+          this.conversationMemory.set(senderNumber, updatedMem);
+
+          // Also update the legacy context system for backward compatibility
+          await this.updateConversationContext(senderNumber, {
+            userName: updatedMem.userName,
+            clientDetails: updatedMem.clientDetails,
+            lastSeenAt,
+            lastMessage: message.body,
+            messageCount,
+            askedName: askedName || shouldAskName,
+            hasCompleteInfo: updatedMem.hasCompleteInfo,
           });
         }
       } catch (error) {
-        this.logger.error(`Error engaging agent or sending message: ${error}`);
+        this.logger.error(`Error processing message from ${senderNumber}: ${error}`);
+        
+        // Fallback response in case of error
+        try {
+          await this.sendMessage(senderNumber, "I'm sorry, I encountered an issue. Please try again or contact our support team.");
+        } catch (fallbackError) {
+          this.logger.error(`Failed to send fallback message: ${fallbackError}`);
+        }
       }
     });
 
