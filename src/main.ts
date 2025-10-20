@@ -51,7 +51,7 @@ async function bootstrap() {
   // app.setGlobalPrefix('api');
 
   // Ensure the server is listening on all network interfaces
-  await app.listen(2121, '0.0.0.0');
+  await app.listen(2020, '0.0.0.0');
 
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
