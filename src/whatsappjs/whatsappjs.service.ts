@@ -13,6 +13,8 @@ export class WhatsAppJsService implements OnModuleInit, OnModuleDestroy {
   private instanceName =
     process.env.WHATSAPP_JS_INSTANCE_NAME || 'WhatsApp-web.js';
   private lastQr: string | null = null;
+  private initializing = false;
+  private reconnectTimer: NodeJS.Timeout | null = null;
   private conversationMemory: Map<
     string,
     {
@@ -626,11 +628,44 @@ Instructions:
       this.logger.log('WhatsApp-web.js client is ready');
     });
 
-    this.client.on('disconnected', (reason) => {
+    this.client.on('disconnected', async (reason) => {
       this.ready = false;
       this.logger.warn(`WhatsApp-web.js disconnected: ${reason}`);
-      // auto-reconnect
-      this.client?.initialize();
+      // Safe reinitialize: destroy current instance and re-init with guard
+      if (this.initializing) {
+        this.logger.warn('Skip reinit: initialization already in progress');
+        return;
+      }
+      this.initializing = true;
+      try {
+        try {
+          await this.client?.destroy();
+        } catch (destroyErr) {
+          this.logger.warn(`WhatsApp destroy failed: ${destroyErr}`);
+        }
+        await this.client?.initialize();
+        this.logger.log('WhatsApp client reinitialized after disconnect');
+      } catch (reinitErr) {
+        this.logger.error(`WhatsApp reinitialize failed: ${reinitErr}`);
+        // Schedule a delayed retry to avoid tight loops
+        try {
+          if (!this.reconnectTimer) {
+            this.reconnectTimer = setTimeout(async () => {
+              this.reconnectTimer = null;
+              try {
+                await this.client?.initialize();
+                this.logger.log('WhatsApp client reinitialized on retry');
+              } catch (retryErr) {
+                this.logger.error(`WhatsApp retry reinit failed: ${retryErr}`);
+              }
+            }, 5000);
+          }
+        } catch (timerErr) {
+          this.logger.error(`Failed to schedule reconnect: ${timerErr}`);
+        }
+      } finally {
+        this.initializing = false;
+      }
     });
 
     this.client.on('auth_failure', (msg) => {
@@ -809,7 +844,32 @@ Instructions:
       }
     }
 
-    await this.client.initialize();
+    try {
+      this.initializing = true;
+      await this.client.initialize();
+    } catch (e) {
+      this.logger.error(
+        `WhatsApp initialization failed: ${e instanceof Error ? e.message : e}`,
+      );
+      // Schedule retry without crashing the app
+      try {
+        if (!this.reconnectTimer) {
+          this.reconnectTimer = setTimeout(async () => {
+            this.reconnectTimer = null;
+            try {
+              await this.client?.initialize();
+              this.logger.log('WhatsApp client initialized on retry');
+            } catch (retryErr) {
+              this.logger.error(`WhatsApp retry initialization failed: ${retryErr}`);
+            }
+          }, 5000);
+        }
+      } catch (timerErr) {
+        this.logger.error(`Failed to schedule WhatsApp init retry: ${timerErr}`);
+      }
+    } finally {
+      this.initializing = false;
+    }
   }
 
   async onModuleDestroy() {

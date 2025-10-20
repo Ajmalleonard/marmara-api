@@ -6,6 +6,15 @@ import * as cookieParser from 'cookie-parser';
 import * as fs from 'fs';
 import * as path from 'path';
 
+// Global process-level error handlers to prevent unexpected crashes
+process.on('uncaughtException', (err) => {
+  console.error('[Global] UncaughtException in process:', err);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('[Global] UnhandledRejection in process:', reason);
+});
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -24,7 +33,6 @@ async function bootstrap() {
       'https://www.marmaraholidays.com',
       'https://www.marmaratravels.com',
       'https://admin.marmaraholidays.com',
-      'https://www.marmaraholidays.com',
     ],
     credentials: true, // Allow credentials (cookies)
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
