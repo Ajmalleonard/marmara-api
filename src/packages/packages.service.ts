@@ -81,6 +81,8 @@ export class PackagesService {
         maxPrice,
         isVip,
         isMemberOnly,
+        page,
+        limit,
         ...rest
       } = query;
 
@@ -95,6 +97,10 @@ export class PackagesService {
         if (minPrice) where.price.gte = parseFloat(minPrice);
         if (maxPrice) where.price.lte = parseFloat(maxPrice);
       }
+
+      const pageNum = page ? parseInt(String(page), 10) : 1;
+      const limitNum = limit ? parseInt(String(limit), 10) : 10;
+      const skip = Math.max(0, (pageNum - 1) * limitNum);
 
       const packages = await this.prisma.package.findMany({
         where,
@@ -111,6 +117,8 @@ export class PackagesService {
         orderBy: {
           createdAt: 'desc',
         },
+        skip,
+        take: limitNum,
       });
 
       return {

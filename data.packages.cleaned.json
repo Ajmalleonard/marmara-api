@@ -1,0 +1,920 @@
+[
+  {
+    "name": "6 Days in Mauntain Kilimanjaro -Marangu Route",
+    "slug": "6-days-in-mauntain-kilimanjaro-marangu-route",
+    "days": 6,
+    "nights": 5,
+    "minimum_people": 1,
+    "maximum_people": 20,
+    "photos": [
+      "https://marmaraholidaysproduction.s3.eu-north-1.amazonaws.com/images/1727863667064-Kilimanjaro%20Zebras%20pc.jpg",
+      "https://marmaraholidaysproduction.s3.eu-north-1.amazonaws.com/images/1727863683225-Kilimanjaro%20History%20Photo.jpeg",
+      "https://marmaraholidaysproduction.s3.eu-north-1.amazonaws.com/images/1727863686978-Kilimanjaro%20climbers%20tent%20night.jpg",
+      "https://marmaraholidaysproduction.s3.eu-north-1.amazonaws.com/images/1727863691765-Kilimanjaro%20webp.webp"
+    ],
+    "descriptions": "The Marangu Route has been referred to as the ‘Coca Cola’ route and this has led potential climbers to think\nthat it is an easy route to the summit. This is far from the truth to be honest! The fact that it requires a\nminimum of 5 - 7 days to complete, does not mean that it is easier than any other route. It is one of the\nshortest routes, but less than 5 days is not recommended (previous climbing and altitude experience\nrecommended). It is a popular route, so can be busy in peak season - requiring advance booking of hut\naccommodation to avoid any inconveniences. Also popular during the rainy season.\nIt is the only route where you sleep in huts, rather than tents. An optional acclimatization day at Horombo\nHuts is highly recommended for those with no prior trekking in altitude experience under their belt.\nThe Marangu Route begins from the Kilimanjaro Park Headquarters in the village of Marangu. The trail starts\nat 1,800m above sea level in the rain forest and heads westwards towards Kibo. As the altitude increases the\ntrail goes from the lush rainforest, through heath and moorland to alpine desert and ultimately the arctic\nzone at the peak. Ascent of Mt Kilimanjaro’s Crater Rim is at Gilman’s Point (5700m) and although it is only\n200m lower than Uhuru Peak - the final ascent can take another hour. The Marangu Route follows the same\ntrail down to Marangu Gate.",
+    "price": 2650,
+    "destination": "Kilimanjaro, Tanzania",
+    "lower_price": 2650,
+    "featured": false,
+    "isMemberOnly": false,
+    "isVip": false,
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Arusha to Moshi",
+        "activities": [
+          {
+            "title": "Pick up at Kilimanjaro International Airport"
+          },
+          {
+            "title": "Transfer to your hotel in Moshi town"
+          },
+          {
+            "title": "Free time to explore Moshi or relax by the pool"
+          },
+          {
+            "title": "Evening briefing with operations team and mountain guide"
+          },
+          {
+            "title": "Equipment check"
+          },
+          {
+            "title": "Accommodation: Standard or Mid-Range hotels Meals: Dinner Included"
+          }
+        ]
+      },
+      {
+        "day": 2,
+        "title": "Marangu Gate (1860m) to Mandara Hut (2700m)",
+        "activities": [
+          {
+            "title": "Breakfast at the lodge"
+          },
+          {
+            "title": "Transfer to Marangu Gate"
+          },
+          {
+            "title": "Begin trek through dense rainforest"
+          },
+          {
+            "title": "Possible sightings of primates"
+          },
+          {
+            "title": "Visit Maundi Crater for views of the Kenyan interior"
+          },
+          {
+            "title": "Distance covered: 8.3km / 5.2mi Approx. time taken: 5 hours Meals: Breakfast, Lunch & Dinner Included"
+          }
+        ]
+      },
+      {
+        "day": 3,
+        "title": "Mandara Hut (2700m) to Horombo Hut (3700m)",
+        "activities": [
+          {
+            "title": "Early breakfast"
+          },
+          {
+            "title": "Trek through timberline to heath and moor zone"
+          },
+          {
+            "title": "Views of Mawenzi, Kibo, and Maasai steppes"
+          },
+          {
+            "title": "Distance covered: 12.5km / 7.8mi Approx. time taken: 9 hours Meals: Breakfast, Lunch & Dinner Included"
+          }
+        ]
+      },
+      {
+        "day": 4,
+        "title": "Acclimatization trek to Zebra Rocks (4020m) then back to Horombo Hut (3700m)",
+        "activities": [
+          {
+            "title": "Relaxing breakfast"
+          },
+          {
+            "title": "Trek to Zebra Rocks"
+          },
+          {
+            "title": "Return to Horombo Hut for lunch"
+          },
+          {
+            "title": "Afternoon relaxation"
+          },
+          {
+            "title": "Distance covered: 5km / 3.1mi Approx. time taken: 4 hours Meals: Breakfast, Lunch & Dinner Included"
+          }
+        ]
+      },
+      {
+        "day": 5,
+        "title": "Horombo Hut (3700m) to Kibo Hut (4700m)",
+        "activities": [
+          {
+            "title": "Long and tough trek"
+          },
+          {
+            "title": "Pass “Last Water point” and “saddle” plateau"
+          },
+          {
+            "title": "Reach Kibo Hut for early evening meal and rest"
+          },
+          {
+            "title": "Distance covered: 9.5km / 5.9mi Approx. time taken: 7 hours Meals: Breakfast, Lunch & Dinner Included"
+          }
+        ]
+      },
+      {
+        "day": 6,
+        "title": "Kibo Hut (4700m) to UHURU PEAK (5895m) & down to Horombo Hut (3700m)",
+        "activities": [
+          {
+            "title": "Midnight ascent to summit"
+          },
+          {
+            "title": "Pass Hans Meyer Cave"
+          },
+          {
+            "title": "Reach Gillman’s Point at sunrise"
+          },
+          {
+            "title": "Continue to Uhuru Peak"
+          },
+          {
+            "title": "Descend to Kibo Hut for meal and rest"
+          },
+          {
+            "title": "Proceed to Horombo Hut"
+          },
+          {
+            "title": "Distance covered: 22km / 13.7mi Approx. time taken: 12 – 15 hours Meals: Breakfast, Lunch & Dinner Included"
+          }
+        ]
+      },
+      {
+        "day": 7,
+        "title": "Horombo Hut (3700m) to Marangu Gate (1860m)",
+        "activities": [
+          {
+            "title": "Trek through heath and moor zone to Mandara Hut"
+          },
+          {
+            "title": "Continue through tropical rainforest to Marangu Gate"
+          },
+          {
+            "title": "Transfer back to hotel in Moshi"
+          },
+          {
+            "title": "Distance covered: 20.8km / 12.9mi Approx. time taken: 8 hours Meals: Breakfast & Lunch Included"
+          }
+        ]
+      },
+      {
+        "day": 8,
+        "title": "Depart Kilimanjaro",
+        "activities": [
+          {
+            "title": "Rest and relax"
+          },
+          {
+            "title": "Transfer to airport for departure"
+          },
+          {
+            "title": "Meals: Breakfast Included"
+          }
+        ]
+      }
+    ],
+    "included": [
+      {
+        "title": "2 shared airport transfers - 1 on arrival and 1 on departure"
+      },
+      {
+        "title": "3 Season mountain tents"
+      },
+      {
+        "title": "Sleeping Mats"
+      },
+      {
+        "title": "Sleeping Bags (-15oC Limit)"
+      },
+      {
+        "title": "Professional mountain guides, cooks and porters"
+      },
+      {
+        "title": "3 meals daily while on the mountain"
+      },
+      {
+        "title": "Katadyn filtered water throughout the trek"
+      },
+      {
+        "title": "Supplemental Oxygen & Pulse Oximeter"
+      },
+      {
+        "title": "1 portable flush toilet with a toilet tent for group sizes of 5 and above."
+      },
+      {
+        "title": "Transportation to & from the mountain gate"
+      },
+      {
+        "title": "Kilimanjaro National Park fees, camping fees & rescue fees"
+      },
+      {
+        "title": "18% VAT on tour fees & services"
+      },
+      {
+        "title": "Pre & Post Trek accommodation in Moshi town on Half Board Basis"
+      },
+      {
+        "title": "Fair wages for the mountain crew as approved by the Kilimanjaro National Park Authority (KINAPA), Kilimanjaro Association of Tour Operators (KIATO)"
+      },
+      {
+        "title": "Tree donation in support of our environmental conservation projects"
+      }
+    ],
+    "excluded": [
+      {
+        "title": "Visa"
+      },
+      {
+        "title": "Tips to mountain crew"
+      },
+      {
+        "title": "Items of a personal nature"
+      },
+      {
+        "title": "Laundry Services"
+      },
+      {
+        "title": "Tanzanian mountain doctor"
+      }
+    ]
+  },
+  {
+    "name": "Serengeti Wonders Private Safari",
+    "slug": "serengeti-wonders-private-safari",
+    "days": 3,
+    "nights": 2,
+    "minimum_people": 2,
+    "maximum_people": 20,
+    "photos": [
+      "https://marmaraholidaysproduction.s3.eu-north-1.amazonaws.com/images/1727859268656-Serengeti%20Edit%205.jpg",
+      "https://marmaraholidaysproduction.s3.eu-north-1.amazonaws.com/images/1727860813421-Serengeti%20Stand.jpg",
+      "https://marmaraholidaysproduction.s3.eu-north-1.amazonaws.com/images/1727860936714-Serengeti%20Image%20B.jpg",
+      "https://marmaraholidaysproduction.s3.eu-north-1.amazonaws.com/images/1729858511748-ndutu.jpeg",
+      "https://marmaraholidaysproduction.s3.eu-north-1.amazonaws.com/images/1729858521960-Ndutu-migration-safari.jpg"
+    ],
+    "descriptions": "Join us for an unforgettable 3-day, 2-night private safari adventure from Arusha, where you'll explore the stunning landscapes and rich wildlife of Tanzania's most famous national parks: the Serengeti and Ngorongoro Crater. This exclusive itinerary combines luxury accommodations with expertly guided game drives to offer you a seamless and enriching experience",
+    "price": 1650,
+    "destination": "Serengeti National Park",
+    "lower_price": 1650,
+    "featured": false,
+    "isMemberOnly": false,
+    "isVip": false,
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Arusha to Serengeti National Park",
+        "activities": [
+          {
+            "title": "⁠Depart from Arusha in the morning and drive to the Serengeti National Park (approximately 4-5 hours)"
+          },
+          {
+            "title": "Upon arrival, enjoy an afternoon game drive in the Serengeti, spotting the diverse wildlife"
+          },
+          {
+            "title": "⁠Check into your Luxury Tented Camp and have dinner"
+          },
+          {
+            "title": "⁠Overnight in the Serengeti"
+          }
+        ]
+      },
+      {
+        "day": 2,
+        "title": "Full Day in Serengeti National Park",
+        "activities": [
+          {
+            "title": "⁠Start the day with an early morning game drive to witness the Serengeti's animals at their most active"
+          },
+          {
+            "title": "⁠Return to your accommodation for brunch."
+          },
+          {
+            "title": "Embark on an afternoon game drive, exploring different areas of the Serengeti."
+          },
+          {
+            "title": "⁠Dinner and overnight at your luxury tented camp."
+          }
+        ]
+      },
+      {
+        "day": 3,
+        "title": "Serengeti to Ngorongoro Crater to Arusha",
+        "activities": [
+          {
+            "title": "After breakfast, depart the Serengeti and drive to the Ngorongoro Conservation Area (approximately 2-3 hours)."
+          },
+          {
+            "title": "⁠Descend into the Ngorongoro Crater and enjoy a game drive, searching for the abundant wildlife."
+          },
+          {
+            "title": "⁠Have a picnic lunch within the crater before beginning your ascent."
+          },
+          {
+            "title": "⁠From Ngorongoro, drive back to Arusha (approximately 2.5 hours)."
+          },
+          {
+            "title": "⁠Arrive in Arusha in the late afternoon."
+          }
+        ]
+      }
+    ],
+    "included": [
+      {
+        "title": "⁠Transfers from/to Arusha by Private 4x4 Landcruiser"
+      },
+      {
+        "title": "⁠2 nights' accommodation at a luxury tented camp or lodge on full board in Serengeti."
+      },
+      {
+        "title": "Game drives in the Serengeti and Ngorongoro Crater"
+      },
+      {
+        "title": "⁠Snacks and Soft Drinks"
+      },
+      {
+        "title": "⁠Park entrance fees"
+      },
+      {
+        "title": "⁠Extra Lunch Boxes"
+      },
+      {
+        "title": "⁠Safari Gifts"
+      },
+      {
+        "title": "⁠Private 4x4 Landcruiser"
+      },
+      {
+        "title": "⁠Private professional English-speaking speaking Guide"
+      }
+    ],
+    "excluded": [
+      {
+        "title": "⁠Balloon Safari Experience in Serengeti"
+      },
+      {
+        "title": "Tips and gratuities"
+      },
+      {
+        "title": "⁠Personal expenses"
+      }
+    ]
+  },
+  {
+    "name": "7 Days in Mauntain Kilimanjaro -Machame Route",
+    "slug": "7-days-in-mauntain-kilimanjaro-machame-route",
+    "days": 7,
+    "nights": 6,
+    "minimum_people": 1,
+    "maximum_people": 20,
+    "photos": [
+      "https://marmaraholidaysproduction.s3.eu-north-1.amazonaws.com/images/1727861923221-Kilimanjaro%20climbers%20tent%20night.jpg",
+      "https://marmaraholidaysproduction.s3.eu-north-1.amazonaws.com/images/1727861963739-Kilimanjaro%20History%20Photo.jpeg",
+      "https://marmaraholidaysproduction.s3.eu-north-1.amazonaws.com/images/1727861966703-Kilimanjaro%20image.jpg",
+      "https://marmaraholidaysproduction.s3.eu-north-1.amazonaws.com/images/1727861968114-Kilimanjaro%20webp.webp"
+    ],
+    "descriptions": "The Machame Route, also referred to as the Whiskey Route, is one of the most popular routes on Mount\nKilimanjaro and a favourite for Marmara Holidays Tanzania - as the owner grew up on the slopes of\nMachame.\nDespite being a tough climb compared to the Marangu Route, The Machame Route has one of the highest\nsummit success rates given the topography of the route which allows climbers to “trek high & sleep low”\nhence making it a more favorable route for acclimatization. Unlike the Marangu Route which is a gradual\nascent, the Machame Route has steeper trails and climbers walk longer distances.\nThis route offers some of the most spectacular scenery while on the mountain. The Machame Route starts on\nthe south-western side of the mountain and proceeds steeply north, traversing the Shira Plateau and\neventually joining the Shira and Lemosho Routes at the Shira camp.",
+    "price": 2650,
+    "destination": "Kilimanjaro, Tanzania",
+    "lower_price": 2650,
+    "featured": false,
+    "isMemberOnly": false,
+    "isVip": false,
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "You will be picked up at the Kilimanjaro International Airport and transferred to your hotel in Moshi town",
+        "activities": [
+          {
+            "title": "You will be picked up at the Kilimanjaro International Airport and transferred to your hotel in Moshi town"
+          },
+          {
+            "title": "The rest of your day will be free"
+          },
+          {
+            "title": "Explore the small and pretty town of Moshi"
+          },
+          {
+            "title": "Relax by the pool"
+          },
+          {
+            "title": "Later on, our operations team and your mountain guide will meet with you and give you a thorough briefing in preparation for your trek"
+          },
+          {
+            "title": "There will be an equipment check to make sure you have all the necessary mountain gear"
+          },
+          {
+            "title": "Accommodation is either in Standard or Mid-Range hotels depending on your preference Meals: Dinner Included"
+          }
+        ]
+      },
+      {
+        "day": 2,
+        "title": "Machame Gate (1817m) to Machame Camp (3021m)",
+        "activities": [
+          {
+            "title": "Half an hour drive from Moshi lies the gate to the Machame route,where you will complete park registrations,"
+          },
+          {
+            "title": "Off on your 6 day trek"
+          },
+          {
+            "title": "The first section of the route climbs steadily and passes through magnificent, dense rainforest"
+          },
+          {
+            "title": "This path is less well-trodden so it can get somewhat overgrown in places and it is often wet and muddy underfoot."
+          },
+          {
+            "title": "Distance covered: 10km Approx. time taken: 6 hours Meals: Breakfast, Lunch & Dinner Included"
+          }
+        ]
+      },
+      {
+        "day": 3,
+        "title": "Machame Camp (3021m) to Shira Camp (3830m)",
+        "activities": [
+          {
+            "title": "Our route continues on up through the forest until we reach the steep ascent onto the Shira Plateau"
+          },
+          {
+            "title": "Enjoy beautiful views of the mountain"
+          },
+          {
+            "title": "Looking back, you will be able to see Mt Meru rising high above Arusha town in the distance."
+          },
+          {
+            "title": "Distance covered: 4.8km Approx. time taken: 5 hours Meals: Breakfast, Lunch & Dinner Included"
+          }
+        ]
+      },
+      {
+        "day": 4,
+        "title": "Shira Camp (3830m) to Barranco Camp (3972m)",
+        "activities": [
+          {
+            "title": "Walking now on high moorland, the landscape changes the entire character of the trek"
+          },
+          {
+            "title": "We traverse the southwest side of Kilimanjaro"
+          },
+          {
+            "title": "Passing underneath the Lava Tower and the final section of the Western Breach and finally reach camp The day has been spent at altitude (up to 4600m)"
+          },
+          {
+            "title": "but we have followed the mountaineering code of ‘walk high, sleep low’ to aid your body’s acclimatization to altitude"
+          },
+          {
+            "title": "Distance covered: 10km Approx. time taken: 8 hrs Meals: Breakfast, Lunch & Dinner Included"
+          }
+        ]
+      },
+      {
+        "day": 5,
+        "title": "Barranco Camp (3960m) to Karanga Camp (3963m)",
+        "activities": [
+          {
+            "title": "Our day starts by descending into the start of the Great Barranco, a huge ravine"
+          },
+          {
+            "title": "We then exit steeply, up the Great Barranco Wall, which divides us from the southeastern slopes of Kibo"
+          },
+          {
+            "title": "It’s a climb over rock, not technical but long and tiring"
+          },
+          {
+            "title": "Passing underneath the Heim and Kersten glaciers, we head towards the Karanga valley. From here we have a steep climb up from Karanga valley to our night’s camp at Karanga camp, set at 3963m"
+          },
+          {
+            "title": "For those feeling strong we will go for a mid-afternoon acclimatization trek up to around 4200m before descending back to camp for the night."
+          },
+          {
+            "title": "Distance covered: 5.5km / 3.4mi Approx. time taken: 5 hours Meals: Breakfast, Lunch & Dinner Included"
+          }
+        ]
+      },
+      {
+        "day": 6,
+        "title": "Karanga Camp (3963) to Barafu Camp (4640m)",
+        "activities": [
+          {
+            "title": "After a good night’s rest and breakfast, we set off on our walk to Barafu camp at 4640m."
+          },
+          {
+            "title": "The climb will take us across desolate scree slopes with no vegetation around us at all"
+          },
+          {
+            "title": "It’s a tough steep walk made more difficult by the altitude"
+          },
+          {
+            "title": "On arrival at camp we eat and spend the afternoon resting as we prepare for a long night and day ahead"
+          },
+          {
+            "title": "It is important to keep hydrated and warm. We have an early dinner and then try to get some sleep as we will be getting up at between 11pm and 12pm to start the climb to the summit."
+          },
+          {
+            "title": "Distance covered: 3km Approx. time taken: 3 hours Meals: Breakfast, Lunch & Dinner Included"
+          }
+        ]
+      },
+      {
+        "day": 7,
+        "title": "Barafu Camp (4642m) to UHURU PEAK (5895m) & down to Millennium Camp (3801m)",
+        "activities": [
+          {
+            "title": "We start off at around midnight, and walk steeply upwards to the summit glaciers"
+          },
+          {
+            "title": "We will be climbing scree for 4 to 5 hours but gain incredible height over a short distance. The views are spectacular"
+          },
+          {
+            "title": "We should be on the crater rim at Stella Point (5739m) as the first rays of the sun hit us."
+          },
+          {
+            "title": "Spectacular ice cliffs within the crater surround us and the views to jagged Mawenzi peak and beyond are breathtaking"
+          },
+          {
+            "title": "Another hour’s walking takes us to the summit, Uhuru Peak (5895m)"
+          },
+          {
+            "title": "We begin our descent by returning to Stella Point and then descending on scree slope and track back to Barafu Camp for breakfast, before finally heading down to Millennium Camp for a long well-earned rest."
+          },
+          {
+            "title": "Distance covered: 13.4km Approx. time taken: 12 – 15 hours Meals: Breakfast, Lunch & Dinner Included"
+          }
+        ]
+      },
+      {
+        "day": 8,
+        "title": "Trek Millennium Camp (3801m) to Mweka Gate (1635m)",
+        "activities": [
+          {
+            "title": "A gentle trek takes us down through the rain forest to Mweka Gate, where we complete park formalities and receive certificates"
+          },
+          {
+            "title": "which you can hang up with pride! We are then met by our vehicles and return to the hotel in Moshi, where you can treat yourself to a welcome shower (and a cold beer or two!) before our big celebration"
+          },
+          {
+            "title": "Overnight in Moshi."
+          },
+          {
+            "title": "Distance covered: 11.5km Approx. time taken: 6 hours Meals: Breakfast, Lunch & Dinner Included Accommodation: Accommodation is either in mid-range or standard hotels depending on your preference"
+          }
+        ]
+      },
+      {
+        "day": 9,
+        "title": "Depart Kilimanjaro",
+        "activities": [
+          {
+            "title": "The day is left free to rest and relax after a long,"
+          },
+          {
+            "title": "Challenging week of trekking"
+          },
+          {
+            "title": "You will be transferred to the airport to catch your morning flight back home."
+          },
+          {
+            "title": "Meals: Breakfast Included"
+          }
+        ]
+      }
+    ],
+    "included": [
+      {
+        "title": "2 shared airport transfers - 1 on arrival and 1 on departure"
+      },
+      {
+        "title": "3 Season Mountain tents"
+      },
+      {
+        "title": "Sleeping Mats"
+      },
+      {
+        "title": "Sleeping Bags (-15oC Limit)"
+      },
+      {
+        "title": "Professional mountain guides, cooks and porters"
+      },
+      {
+        "title": "3 meals daily while on the mountain"
+      },
+      {
+        "title": "Katadyn filtered water throughout the trek"
+      },
+      {
+        "title": "Supplemental Oxygen & Pulse Oximeter"
+      },
+      {
+        "title": "1 portable flush toilet with a toilet tent for group sizes of 5 and above."
+      },
+      {
+        "title": "Transportation to & from the mountain gate"
+      },
+      {
+        "title": "Kilimanjaro National Park fees, camping fees & rescue fees"
+      },
+      {
+        "title": "18% VAT on tour fees & services"
+      },
+      {
+        "title": "Pre & Post Trek accommodation in Moshi town on Half Board Basis"
+      },
+      {
+        "title": "Fair wages for the mountain crew as approved by the Kilimanjaro National Park Authority (KINAPA), Kilimanjaro Association of Tour Operators (KIATO)"
+      },
+      {
+        "title": "Tree donation in support of our environmental conservation projects"
+      }
+    ],
+    "excluded": [
+      {
+        "title": "Visa"
+      },
+      {
+        "title": "Tips to mountain crew – Recommended minimum $150 per client"
+      },
+      {
+        "title": "Items of a personal nature"
+      },
+      {
+        "title": "Laundry Services"
+      },
+      {
+        "title": "Tanzanian mountain doctor"
+      },
+      {
+        "title": "1 portable flush toilet with a toilet tent for group sizes less than 5 people."
+      },
+      {
+        "title": "Single Supplement Request from client"
+      },
+      {
+        "title": "Travel Insurance (Recommended – Travel insurance with medical cover of 6,000m and above)"
+      }
+    ]
+  },
+  {
+    "name": "Luxury Private Safari Package",
+    "slug": "northern-tanzania-private-safari-via-tarangire-national-park",
+    "days": 4,
+    "nights": 3,
+    "minimum_people": 2,
+    "maximum_people": 6,
+    "photos": [
+      "https://marmaraholidaysproduction.s3.eu-north-1.amazonaws.com/images/1727198232691-IMG_6340.jpg",
+      "https://marmaraholidaysproduction.s3.eu-north-1.amazonaws.com/images/1726404719186-ndutu3.jpeg",
+      "https://marmaraholidaysproduction.s3.eu-north-1.amazonaws.com/images/1723910686433-IMG_5727.jpg",
+      "https://marmaraholidaysproduction.s3.eu-north-1.amazonaws.com/images/1723910742423-IMG_6291.jpg",
+      "https://marmaraholidaysproduction.s3.eu-north-1.amazonaws.com/images/1723910762832-IMG_5693.jpg"
+    ],
+    "descriptions": "Tarangire National Park: Diverse ecosystem home to large elephant herds and abundant\nwildlife.\nNgorongoro Crater: Awe-inspiring volcanic caldera with excep-onal game viewing of the \"Big\nFive.\"\nSerenge- Na-onal Park: Iconic, vast savanna teeming with an incredible array of wildlife,\nincluding the wildebeest migra-on.\nLuxury accommoda-ons: Comfortable tented camps and lodges providing an authen-c, high-\nend safari experience.\nPrivate 4x4 transporta-on: Personalized vehicle and professional driver-guide for op-mal\nwildlife viewing.",
+    "price": 2550,
+    "destination": "Tarangire National Park, Ngorongoro Crater and Serengeti National Park",
+    "lower_price": 2550,
+    "featured": false,
+    "isMemberOnly": false,
+    "isVip": false,
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Arusha to Tarangire National Park",
+        "activities": [
+          {
+            "title": "Depart Arusha and drive to Tarangire National Park."
+          },
+          {
+            "title": "Enjoy an afternoon game drive in Tarangire, known for its large elephant herds and diverse wildlife."
+          },
+          {
+            "title": "Overnight at a luxury lodge in Karatu, on the edge of the Ngorongoro Conservation Area."
+          }
+        ]
+      },
+      {
+        "day": 2,
+        "title": "Ngorongoro Crater to Serengeti National Park",
+        "activities": [
+          {
+            "title": "After breakfast, descend into the Ngorongoro Crater for a full-day game drive."
+          },
+          {
+            "title": "Observe the diverse array of wildlife, including the \"Big Five,\" within the caldera."
+          },
+          {
+            "title": "Drive from the Ngorongoro Crater to the Serengeti National Park."
+          },
+          {
+            "title": "Overnight at a Luxury Tented Lodge in the Serengeti."
+          }
+        ]
+      },
+      {
+        "day": 3,
+        "title": "Serengeti National Park",
+        "activities": [
+          {
+            "title": "Spend the day on a game drive in the Serengeti, searching for iconic wildlife and potentially witnessing the wildebeest migration."
+          },
+          {
+            "title": "Overnight at the same Luxury Tented Lodge in the Serengeti."
+          },
+          {
+            "title": "Balloon Safari Experience at the heart of Serengeti National Park"
+          }
+        ]
+      },
+      {
+        "day": 4,
+        "title": "Serengeti to Arusha",
+        "activities": [
+          {
+            "title": "After your final game drive in the Serengeti, begin the drive back to Arusha."
+          },
+          {
+            "title": "Depending on your departure flight schedule, you may have time for last-minute shopping or sightseeing in Arusha."
+          }
+        ]
+      }
+    ],
+    "included": [
+      {
+        "title": "2 nights' accommodation at a luxury Tented Lodge in the Serengeti"
+      },
+      {
+        "title": "1 night's accommodation at a lodge in Karatu, near the Ngorongoro Crater"
+      },
+      {
+        "title": "All transportation in a private 4x4 vehicle with a professional driver-guide"
+      },
+      {
+        "title": "All game drives and park entrance fees"
+      },
+      {
+        "title": "Meals as per the itinerary (breakfast, lunch, dinner)"
+      },
+      {
+        "title": "Extra lunch boxes"
+      },
+      {
+        "title": "Safari Gifts"
+      },
+      {
+        "title": "Pick-up and drop-off at your accommodation in Arusha"
+      },
+      {
+        "title": "Hot air Balloon Safari"
+      }
+    ],
+    "excluded": [
+      {
+        "title": "International flights to/from Arusha"
+      },
+      {
+        "title": "Visa fees (if applicable)"
+      },
+      {
+        "title": "Travel insurance"
+      },
+      {
+        "title": "Op1onal ac1vi1es or excursions not included in the i1nerary"
+      }
+    ]
+  },
+  {
+    "name": "Classic Unforgettable Private Safari",
+    "slug": "northern-tanzania-private-safari",
+    "days": 4,
+    "nights": 3,
+    "minimum_people": 2,
+    "maximum_people": 10,
+    "photos": [
+      "https://marmaraholidaysproduction.s3.eu-north-1.amazonaws.com/images/1727194273442-IMG_5661.jpg",
+      "https://marmaraholidaysproduction.s3.eu-north-1.amazonaws.com/images/1726395560890-ndutu.jpeg",
+      "https://marmaraholidaysproduction.s3.eu-north-1.amazonaws.com/images/1726395578751-Ndutu-migration-safari.jpg",
+      "https://marmaraholidaysproduction.s3.eu-north-1.amazonaws.com/images/1726395602886-ndutu3.jpeg",
+      "https://marmaraholidaysproduction.s3.eu-north-1.amazonaws.com/images/1726395680416-ndutu2.jpeg"
+    ],
+    "descriptions": "Serengeti National Park: Vast, iconic savanna teeming with diverse wildlife, including the\ndrama-c wildebeest migra-on.\nNgorongoro Crater: Stunning volcanic caldera oﬀering excep-onal game viewing of the \"Big\nFive\" and other species.\nKaratu: Scenic town on the edge of the Ngorongoro Conserva-on Area, serving as a base for\ncrater explora-on.\nLuxury accommoda-ons: Comfortable tented camps providing an authen-c safari experience.\nPrivate 4x4 vehicle: Personalized transporta-on with a professional driver-guide for op-mal\nwildlife viewing.",
+    "price": 1950,
+    "destination": "Serengeti National Park and Ngorongoro Crater",
+    "lower_price": 1950,
+    "featured": false,
+    "isMemberOnly": false,
+    "isVip": false,
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Arusha to Serengeti National Park",
+        "activities": [
+          {
+            "title": "Depart Arusha in the morning and drive to the Serengeti National Park."
+          },
+          {
+            "title": "Enjoy an afternoon game drive in the Serengeti, exploring the vast plains and searching for the abundant wildlife."
+          },
+          {
+            "title": "Overnight at a luxury tented camp in the Serengeti."
+          }
+        ]
+      },
+      {
+        "day": 2,
+        "title": "Serengeti National Park",
+        "activities": [
+          {
+            "title": "Spend the full day on game drives in the Serengeti, following the wildlife and observing their behaviors."
+          },
+          {
+            "title": "Depending on the time of year, you may witness the dramatic wildebeest migration."
+          },
+          {
+            "title": "Overnight at the same camp in the Serengeti."
+          }
+        ]
+      },
+      {
+        "day": 3,
+        "title": "Serengeti to Ngorongoro Crater",
+        "activities": [
+          {
+            "title": "After breakfast, depart the Serengeti and drive to the Ngorongoro Conservation Area."
+          },
+          {
+            "title": "Descend into the Ngorongoro Crater for a game drive, exploring the caldera and observing the diverse wildlife."
+          },
+          {
+            "title": "Overnight at a lodge in Karatu, on the edge of the Ngorongoro Crater."
+          }
+        ]
+      },
+      {
+        "day": 4,
+        "title": "Ngorongoro to Arusha",
+        "activities": [
+          {
+            "title": "After breakfast, depart Karatu and drive back to Arusha"
+          },
+          {
+            "title": "Depending on your flight schedule, you may have time for some last-minute shopping or sightseeing in Arusha before your departure."
+          }
+        ]
+      }
+    ],
+    "included": [
+      {
+        "title": "2 nights' accommodation at a luxury tented camp in the Serengeti"
+      },
+      {
+        "title": "1 night's accommodation at a lodge in Karatu, near the Ngorongoro Crater"
+      },
+      {
+        "title": "All transportation in a private 4x4 vehicle with a professional driver-guide"
+      },
+      {
+        "title": "All game drives and park entrance fees"
+      },
+      {
+        "title": "Meals as per the itinerary (breakfast, lunch, dinner)"
+      },
+      {
+        "title": "Snacks and Soft Drinks in the vehicle"
+      },
+      {
+        "title": "Extra lunch boxes"
+      },
+      {
+        "title": "Safari Gifts"
+      },
+      {
+        "title": "Pick-up and drop-off at your accommodation in Arusha"
+      }
+    ],
+    "excluded": [
+      {
+        "title": "International flights to/from Arusha"
+      },
+      {
+        "title": "Visa fees (if applicable)"
+      },
+      {
+        "title": "Travel insurance"
+      },
+      {
+        "title": "Hot air Balloon Safari"
+      }
+    ]
+  }
+]

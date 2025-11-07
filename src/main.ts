@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './Guards/AllExceptions.filter';
-import * as cookieParser from 'cookie-parser';
+import cookieParser = require('cookie-parser');
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -71,10 +71,13 @@ function ensureWhatsAppAuthPersistence() {
     }
     // Check writability
     fs.accessSync(dir, fs.constants.W_OK);
-    // Optional: log path for operational visibility
+    // ! Optional: log path for operational visibility
     console.log(`[Bootstrap] WhatsApp auth directory ready: ${dir}`);
   } catch (err) {
-    console.error('[Bootstrap] WhatsApp auth directory is not writable or cannot be created:', err);
+    console.error(
+      '[Bootstrap] WhatsApp auth directory is not writable or cannot be created:',
+      err,
+    );
   }
 }
 ensureWhatsAppAuthPersistence();

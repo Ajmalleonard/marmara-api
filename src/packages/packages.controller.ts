@@ -36,10 +36,12 @@ export class PackagesController {
 
   @Post('bulk')
   @UseGuards(JwtAuthGuard)
-  createMany(@Body() packages: CreatePackageDto[], @GetUser() user: User) {
-    if (!user.isAdmin) {
-      throw new ForbiddenException('Only admins can create packages');
-    }
+  // createMany(@Body() packages: CreatePackageDto[], @GetUser() user: User) {
+  //   if (!user.isAdmin) {
+  //     throw new ForbiddenException('Only admins can create packages');
+  //   }
+  createMany(@Body() packages: CreatePackageDto[]) {
+    // Auth disabled for bulk import per request
     return this.packagesService.createMany(packages);
   }
   @Get()
