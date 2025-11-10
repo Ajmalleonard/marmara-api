@@ -85,6 +85,14 @@ export class AuthService {
         lastLogin: true,
         createdAt: true,
         updatedAt: true,
+        // Include related data needed by the frontend
+        wishlists: true,
+        bookings: {
+          include: {
+            package: true,
+          },
+        },
+        // If you later add reviews or other relations, include them here as well
       },
     });
     console.log(updatedUser);

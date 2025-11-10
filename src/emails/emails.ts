@@ -13,6 +13,24 @@ import {
 } from './emailTemplates';
 import { createNodemailerTransporter, senderInfo } from './nodemailer.config';
 
+const getBaseMailOptions = (to: string | string[], subject: string) => {
+  const messageId = `<${Date.now()}.${Math.random()
+    .toString(36)
+    .substring(2)}@marmaratravels.com>`;
+  return {
+    to,
+    subject,
+    from: `${senderInfo.name} <${senderInfo.email}>`,
+    headers: {
+      'X-Mailer': 'MarmaraTravels Nodemailer',
+      'X-Priority': '3',
+      'List-Unsubscribe': `<mailto:unsubscribe@marmaratravels.com?subject=unsubscribe>, <https://marmaratravels.com/unsubscribe?id=${messageId}>`,
+      Date: new Date().toUTCString(),
+      'Message-ID': messageId,
+    },
+  };
+};
+
 export const sendVerificationEmail = async (
   email: string,
   verificationCode: string,
@@ -21,9 +39,7 @@ export const sendVerificationEmail = async (
 
   try {
     const response = await transporter.sendMail({
-      from: `${senderInfo.name} <${senderInfo.email}>`,
-      to: email,
-      subject: 'Verify your email',
+      ...getBaseMailOptions(email, 'Verify your email'),
       html: VERIFICATION_EMAIL_TEMPLATE.replace(
         '{verificationCode}',
         verificationCode,
@@ -67,9 +83,7 @@ export const sendWelcomeEmail = async (email: string, name: string) => {
 
   try {
     const response = await transporter.sendMail({
-      from: `${senderInfo.name} <${senderInfo.email}>`,
-      to: email,
-      subject: 'Welcome to Marmara Holidays',
+      ...getBaseMailOptions(email, 'Welcome to Marmara Holidays'),
       html: WELCOME_EMAIL_TEMPATE.replace('{userName}', name).replace(
         '{userEmail}',
         email,
@@ -88,9 +102,7 @@ export const sendPasswordResetEmail = async (email: string, resetURL: string) =>
 
   try {
     const response = await transporter.sendMail({
-      from: `${senderInfo.name} <${senderInfo.email}>`,
-      to: email,
-      subject: 'Reset your password',
+      ...getBaseMailOptions(email, 'Reset your password'),
       html: PASSWORD_RESET_REQUEST_TEMPLATE.replace('{resetURL}', resetURL),
     });
 
@@ -106,9 +118,7 @@ export const sendResetSuccessEmail = async (email: string) => {
 
   try {
     const response = await transporter.sendMail({
-      from: `${senderInfo.name} <${senderInfo.email}>`,
-      to: email,
-      subject: 'Password Reset Successful',
+      ...getBaseMailOptions(email, 'Password Reset Successful'),
       html: PASSWORD_RESET_SUCCESS_TEMPLATE,
     });
 
