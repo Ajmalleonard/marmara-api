@@ -1,0 +1,25 @@
+
+type Chat {
+  id: ID!
+  name: String!
+  email: String!
+  messages: [ChatMessage!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type ChatMessage {
+  id: ID!
+  content: String!
+  sender: String!
+  createdAt: DateTime!
+}
+
+type Query {
+  getChat(id: ID!): Chat
+}
+
+type Mutation {
+  createChat(name: String!, email: String!): Chat
+  sendMessage(chatId: ID!, content: String!, sender: String!): ChatMessage
+}
