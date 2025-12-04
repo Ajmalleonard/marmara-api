@@ -1,0 +1,115 @@
+{
+  "info": {
+    "name": "Marmara API - Chatting",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0",
+    "_postman_id": "marmara-chat-collection"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:2020",
+      "type": "string"
+    },
+    {
+      "key": "chatId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Create Chat",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"query\": \"mutation { createChat(name: \\\"Test User\\\", email: \\\"test@example.com\\\") { id name email } }\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/graphql",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "graphql"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Chat",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"query\": \"query ($id: ID!) { getChat(id: $id) { id name email messages { id content sender createdAt } } }\",\n  \"variables\": { \"id\": \"{{chatId}}\" }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/graphql",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "graphql"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Send Message",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"query\": \"mutation ($chatId: ID!, $content: String!, $sender: String!) { sendMessage(chatId: $chatId, content: $content, sender: $sender) { id content sender createdAt } }\",\n  \"variables\": { \"chatId\": \"{{chatId}}\", \"content\": \"Hello from Postman\", \"sender\": \"user\" }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/graphql",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "graphql"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

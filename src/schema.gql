@@ -73,6 +73,22 @@ type CarBooking {
   withDriver: Boolean!
 }
 
+type Chat {
+  createdAt: DateTime!
+  email: String!
+  id: ID!
+  messages: [ChatMessage!]!
+  name: String!
+  updatedAt: DateTime!
+}
+
+type ChatMessage {
+  content: String!
+  createdAt: DateTime!
+  id: ID!
+  sender: String!
+}
+
 input ContactInfoInput {
   countryCode: String!
   email: String!
@@ -399,9 +415,11 @@ input ModifyFlightBookingInput {
 type Mutation {
   cancelFlightBooking(input: CancelFlightBookingInput!): BookingCancellationResponse!
   createCarBooking(createCarBookingInput: CreateCarBookingInput!): CarBooking!
+  createChat(email: String!, name: String!): Chat!
   createFlightBooking(input: CreateFlightBookingInput!): FlightBookingResponse!
   createVisaRequest(createVisaRequestInput: CreateVisaRequestInput!): VisaRequest!
   modifyFlightBooking(input: ModifyFlightBookingInput!): FlightBookingResponse!
+  sendMessage(chatId: ID!, content: String!, sender: String!): ChatMessage!
 }
 
 type Operating {
@@ -457,6 +475,7 @@ type Query {
   carsByType(type: String!): [Car!]!
   emergencyContacts: [EmergencyContact!]!
   flightInspiration(input: FlightInspirationInput!): FlightInspirationResponse!
+  getChat(id: ID!): Chat!
   getFlightBooking(input: GetBookingInput!): FlightBooking!
   getUserFlightBookings(input: GetUserBookingsInput): [FlightBooking!]!
   searchFlights(input: FlightSearchInput!): FlightSearchResponse!
@@ -479,6 +498,10 @@ type SecurityTip {
   iconName: String!
   id: ID!
   title: String!
+}
+
+type Subscription {
+  messageAdded(chatId: ID!): ChatMessage!
 }
 
 type TravelerPricing {

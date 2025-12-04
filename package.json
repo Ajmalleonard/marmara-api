@@ -43,6 +43,7 @@
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.4.7",
     "graphql": "^16.10.0",
+    "graphql-subscriptions": "^3.0.0",
     "graphql-type-json": "^0.3.2",
     "groq-sdk": "^0.33.0",
     "mailtrap": "^3.4.0",

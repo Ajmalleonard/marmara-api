@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  url      = env("DATABASE_URL")
+  url = env("DATABASE_URL")
 }
 
 model User {
@@ -786,17 +786,17 @@ model Chat {
   id        String        @id @default(auto()) @map("_id") @db.ObjectId
   name      String
   email     String
+  messages  ChatMessage[] @relation("ChatToMessages")
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
-  messages  ChatMessage[]
 }
 
 model ChatMessage {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  content   String
-  createdAt DateTime @default(now())
-  sender    String // "USER" or "AGENT"
-  chat      Chat     @relation(fields: [chatId], references: [id])
+  chat      Chat     @relation("ChatToMessages", fields: [chatId], references: [id], onDelete: Cascade)
   chatId    String   @db.ObjectId
+  content   String
+  sender    String
+  createdAt DateTime @default(now())
 }
 

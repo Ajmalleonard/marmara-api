@@ -44,6 +44,9 @@ import { ChatModule } from './chat/chat.module';
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       sortSchema: true,
       playground: true,
+      subscriptions: {
+        'graphql-ws': { path: '/graphql' },
+      },
     }),
   ],
   controllers: [AppController],
