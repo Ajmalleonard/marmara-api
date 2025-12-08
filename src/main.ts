@@ -59,10 +59,11 @@ async function bootstrap() {
   // Set global prefix (optional)
   // app.setGlobalPrefix('api');
 
-  // Ensure the server is listening on all network interfaces
-  await app.listen(process.env.SERVER_PORT, '0.0.0.0');
+  const port = process.env.SERVER_PORT || 3003;
 
-  console.log(`Application is running on: ${await app.getUrl()}`);
+  // Ensure the server is listening on all network interfaces
+  await app.listen(port, '127.0.0.1');
+
 }
 function ensureWhatsAppAuthPersistence() {
   const dir = path.join(process.cwd(), 'whatsapp-auth');
