@@ -70,9 +70,7 @@ export class PaymentService {
     if (!stripeSecretKey) {
       this.logger.warn('Stripe secret key not configured. Payment processing will be disabled.');
     } else {
-      this.stripe = new Stripe(stripeSecretKey, {
-        apiVersion: '2025-10-29.clover',
-      });
+      this.stripe = new Stripe(stripeSecretKey);
     }
   }
 
