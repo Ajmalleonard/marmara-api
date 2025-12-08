@@ -4,7 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PaymentStatus, RefundStatus, RefundType, PaymentProvider } from '@prisma/client';
 
 // Import PesaPal SDK
-const PesaPal = require('pesapaljs-v3');
+import PesaPal from 'pesapaljs-v3';
 
 // Payment interfaces
 export interface PaymentIntent {
