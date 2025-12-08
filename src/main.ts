@@ -59,7 +59,7 @@ async function bootstrap() {
   // Set global prefix (optional)
   // app.setGlobalPrefix('api');
 
-  const port = process.env.SERVER_PORT || 3003;
+  const port = 3003;
 
   // Ensure the server is listening on all network interfaces
   await app.listen(port, '127.0.0.1');
