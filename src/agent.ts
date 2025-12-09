@@ -1,19 +1,21 @@
 import Groq from 'groq-sdk';
 import OpenAI from 'openai';
 
-const groq = new Groq({
-  apiKey: process.env.SQKEYS,
-  dangerouslyAllowBrowser: true,
-});
+const SQ_KEY = process.env.SQKEYS || process.env.GROQ_API_KEY; 
+const groq = SQ_KEY
+  ? new Groq({ apiKey: SQ_KEY, dangerouslyAllowBrowser: true })
+  : null;
 
-const openai = new OpenAI({ 
-  baseURL: 'https://openrouter.ai/api/v1',
-  apiKey: process.env.SQKEYS,
-  defaultHeaders: {
-    'HTTP-Referer': 'https://marmaratravels.com', 
-    'X-Title': 'Marmara Travels', 
-  },
-});
+const openai = SQ_KEY
+  ? new OpenAI({
+      baseURL: 'https://openrouter.ai/api/v1',
+      apiKey: SQ_KEY,
+      defaultHeaders: {
+        'HTTP-Referer': 'https://marmaratravels.com',
+        'X-Title': 'Marmara Travels',
+      },
+    })
+  : null;
 
 type StreamCallback = (chunk: string) => void;
 const SITE_LINKS = {
@@ -189,6 +191,10 @@ export async function EngageAgent(
     Based on the message, what is the user's primary intent? Respond with one of the intents listed above.
   `;
 
+  if (!groq) {
+    onStream('Hello! How can we help with flights, visas, or holidays today?');
+    return;
+  }
   const analysisStream = await groq.chat.completions.create({
     messages: [
       {

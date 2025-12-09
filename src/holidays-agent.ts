@@ -1,19 +1,21 @@
 import Groq from 'groq-sdk';
 import OpenAI from 'openai';
 
-const groq = new Groq({
-  apiKey: process.env.SQKEYS,
-  dangerouslyAllowBrowser: true,
-});
+const SQ_KEY = process.env.SQKEYS || process.env.GROQ_API_KEY;
+const groq = SQ_KEY
+  ? new Groq({ apiKey: SQ_KEY, dangerouslyAllowBrowser: true })
+  : null;
 
-const openai = new OpenAI({
-  baseURL: 'https://openrouter.ai/api/v1',
-  apiKey: process.env.SQKEYS,
-  defaultHeaders: {
-    'HTTP-Referer': 'https://marmaraholidays.com',
-    'X-Title': 'Marmara Holidays',
-  },
-});
+const openai = SQ_KEY
+  ? new OpenAI({
+      baseURL: 'https://openrouter.ai/api/v1',
+      apiKey: SQ_KEY,
+      defaultHeaders: {
+        'HTTP-Referer': 'https://marmaraholidays.com',
+        'X-Title': 'Marmara Holidays',
+      },
+    })
+  : null;
 
 type StreamCallback = (chunk: string) => void;
 const MAX_RESPONSE_LENGTH = 200;
@@ -178,6 +180,10 @@ export async function EngageHolidaysAgent(
     Respond with ONLY the intent word (one of the 4 above). Nothing else.
   `;
 
+  if (!groq) {
+    onStream('Karibu! Ask us about Tanzania safaris, tours or holidays.');
+    return;
+  }
   const analysisStream = await groq.chat.completions.create({
     messages: [
       { role: 'system' as const, content: 'You are an intent classifier.' },
