@@ -29,7 +29,7 @@ export class PaymentController {
    * POST /payment/intent
    */
   @Post('intent')
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard) // Auth disabled for guest payment
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe({ transform: true }))
   async createPaymentIntent(
@@ -37,8 +37,10 @@ export class PaymentController {
     @Request() req: any,
   ) {
     try {
-      // Ensure the user ID matches the authenticated user
-      createPaymentIntentDto.userId = req.user.id;
+      // If user is authenticated, use their ID, otherwise it will be resolved from flight booking
+      if (req.user?.id) {
+        createPaymentIntentDto.userId = req.user.id;
+      }
       
       return await this.paymentService.createPaymentIntent(createPaymentIntentDto);
     } catch (error) {
@@ -52,7 +54,7 @@ export class PaymentController {
    * POST /payment/process
    */
   @Post('process')
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard) // Auth disabled for guest payment
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe({ transform: true }))
   async processPayment(
@@ -60,8 +62,9 @@ export class PaymentController {
     @Request() req: any,
   ) {
     try {
-      // Ensure the user ID matches the authenticated user
-      processPaymentDto.userId = req.user.id;
+      if (req.user?.id) {
+        processPaymentDto.userId = req.user.id;
+      }
       
       return await this.paymentService.processPayment(processPaymentDto);
     } catch (error) {

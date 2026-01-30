@@ -79,14 +79,14 @@ export class AmadeusController {
    * POST /amadeus/flights/book
    */
   @Post('flights/book')
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard) // Auth disabled for guest booking
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(new ValidationPipe({ transform: true }))
   async createFlightBooking(
     @Body() bookingDto: FlightBookingDto,
     @Request() req: any,
   ) {
-    const userId = req.user.id;
+    const userId = req.user?.id;
     return this.amadeusService.createFlightBooking(bookingDto, userId);
   }
 

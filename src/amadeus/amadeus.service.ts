@@ -46,7 +46,9 @@ export class AmadeusService {
     this.clientSecret = this.configService.get<string>('AMADEUS_SECRET');
 
     if (!this.clientId || !this.clientSecret) {
-      throw new Error('Amadeus API credentials not found in environment variables');
+      throw new Error(
+        'Amadeus API credentials not found in environment variables',
+      );
     }
 
     this.httpClient = axios.create({
@@ -79,7 +81,7 @@ export class AmadeusService {
           // Token expired, clear it and retry once
           this.accessToken = null;
           this.tokenExpiresAt = null;
-          
+
           if (!error.config._retry) {
             error.config._retry = true;
             await this.ensureValidToken();
@@ -98,7 +100,11 @@ export class AmadeusService {
    * Ensure we have a valid access token
    */
   private async ensureValidToken(): Promise<void> {
-    if (this.accessToken && this.tokenExpiresAt && new Date() < this.tokenExpiresAt) {
+    if (
+      this.accessToken &&
+      this.tokenExpiresAt &&
+      new Date() < this.tokenExpiresAt
+    ) {
       return; // Token is still valid
     }
 
@@ -139,7 +145,10 @@ export class AmadeusService {
 
       this.logger.log('Successfully authenticated with Amadeus API');
     } catch (error) {
-      this.logger.error('Amadeus authentication failed', error.response?.data || error.message);
+      this.logger.error(
+        'Amadeus authentication failed',
+        error.response?.data || error.message,
+      );
       throw error;
     }
   }
@@ -147,14 +156,16 @@ export class AmadeusService {
   /**
    * Search for flight offers
    */
-  async searchFlights(searchDto: FlightSearchDto): Promise<FlightSearchResponse> {
+  async searchFlights(
+    searchDto: FlightSearchDto,
+  ): Promise<FlightSearchResponse> {
     try {
       const searchParams = this.buildFlightSearchParams(searchDto);
-      
+
       // Check cache first
       const cacheKey = this.generateSearchCacheKey(searchParams);
       const cachedResult = await this.getCachedSearch(cacheKey);
-      
+
       if (cachedResult) {
         this.logger.log('Returning cached flight search results');
         return cachedResult.searchResults as unknown as FlightSearchResponse;
@@ -179,12 +190,16 @@ export class AmadeusService {
   /**
    * Search for flight inspiration (destinations)
    */
-  async searchFlightInspiration(searchDto: FlightInspirationDto): Promise<FlightInspirationResponse> {
+  async searchFlightInspiration(
+    searchDto: FlightInspirationDto,
+  ): Promise<FlightInspirationResponse> {
     try {
       const params = {
         origin: searchDto.origin,
         ...(searchDto.maxPrice && { maxPrice: searchDto.maxPrice }),
-        ...(searchDto.departureDate && { departureDate: searchDto.departureDate }),
+        ...(searchDto.departureDate && {
+          departureDate: searchDto.departureDate,
+        }),
         ...(searchDto.oneWay !== undefined && { oneWay: searchDto.oneWay }),
         ...(searchDto.duration && { duration: searchDto.duration }),
         ...(searchDto.nonStop !== undefined && { nonStop: searchDto.nonStop }),
@@ -196,7 +211,9 @@ export class AmadeusService {
         { params },
       );
 
-      this.logger.log(`Found ${response.data.data?.length || 0} flight destinations`);
+      this.logger.log(
+        `Found ${response.data.data?.length || 0} flight destinations`,
+      );
       return response.data;
     } catch (error) {
       this.logger.error('Flight inspiration search failed', error);
@@ -207,7 +224,9 @@ export class AmadeusService {
   /**
    * Search for airports and cities by keyword
    */
-  async searchAirportsAndCities(searchDto: AirportCitySearchDto): Promise<AirportCitySearchResponse> {
+  async searchAirportsAndCities(
+    searchDto: AirportCitySearchDto,
+  ): Promise<AirportCitySearchResponse> {
     try {
       const params: AirportCitySearchRequest = {
         keyword: searchDto.keyword,
@@ -222,7 +241,9 @@ export class AmadeusService {
         { params },
       );
 
-      this.logger.log(`Found ${response.data.data?.length || 0} locations for keyword: ${searchDto.keyword}`);
+      this.logger.log(
+        `Found ${response.data.data?.length || 0} locations for keyword: ${searchDto.keyword}`,
+      );
       return response.data;
     } catch (error) {
       this.logger.error('Airport/City search failed', error);
@@ -233,7 +254,9 @@ export class AmadeusService {
   /**
    * Lookup airline information by IATA or ICAO codes
    */
-  async lookupAirlineCodes(searchDto: AirlineCodeLookupDto): Promise<AirlineCodeLookupResponse> {
+  async lookupAirlineCodes(
+    searchDto: AirlineCodeLookupDto,
+  ): Promise<AirlineCodeLookupResponse> {
     try {
       const params: AirlineCodeLookupRequest = {
         ...(searchDto.airlineCodes && { airlineCodes: searchDto.airlineCodes }),
@@ -257,39 +280,112 @@ export class AmadeusService {
   /**
    * Create a flight booking
    */
-  async createFlightBooking(bookingDto: FlightBookingDto, userId: string): Promise<FlightBookingResponse> {
+  async createFlightBooking(
+    bookingDto: FlightBookingDto,
+    userId?: string,
+  ): Promise<FlightBookingResponse> {
     try {
       // Validate flight offer structure and constraints
       this.flightValidationService.validateFlightOffer(bookingDto.flightOffer);
       this.flightValidationService.validateTravelDates(bookingDto.flightOffer);
-      
+
       // Validate passengers
       this.passengerValidationService.validatePassengers(bookingDto.travelers);
-      
+
       // Validate booking constraints (passenger count, timing, etc.)
-      // Create a simplified booking input for validation
       const bookingInput = {
         flightOffer: bookingDto.flightOffer,
         passengers: bookingDto.travelers,
-        contactInfo: bookingDto.contacts?.[0] || { email: '', phone: '' } // Use first contact or default
+        contactInfo: bookingDto.contacts?.[0] || { email: '', phone: '' },
       };
       this.flightValidationService.validateBookingConstraints(bookingInput);
 
+      // Handle Guest User: If userId is missing, find or create user based on contact email
+      if (!userId) {
+        const contactEmail = bookingDto.contacts?.[0]?.emailAddress;
+        if (!contactEmail) {
+          throw new HttpException(
+            'Contact email is required for guest booking',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+
+        let user = await this.prisma.user.findUnique({
+          where: { email: contactEmail },
+        });
+
+        if (!user) {
+          // Create a new guest user
+          const randomPassword = crypto.randomBytes(12).toString('hex');
+          // Extract name from first traveler if possible, or use email part
+          const firstName = bookingDto.travelers[0]?.name?.firstName || 'Guest';
+          const lastName = bookingDto.travelers[0]?.name?.lastName || 'User';
+
+          user = await this.prisma.user.create({
+            data: {
+              email: contactEmail,
+              password: randomPassword, // In a real app, we should hash this, but for now/guest it's placeholder
+              name: `${firstName} ${lastName}`,
+              isVerified: false,
+              isAdmin: false,
+            },
+          });
+          this.logger.log(`Created guest user for email: ${contactEmail}`);
+        }
+
+        userId = user.id;
+      }
+
       // First, validate the flight offer by pricing it
-      const pricingResponse = await this.priceFlightOffer(bookingDto.flightOffer);
-      
+      const pricingResponse = await this.priceFlightOffer(
+        bookingDto.flightOffer,
+      );
+
       if (!pricingResponse.data || pricingResponse.data.length === 0) {
-        throw new HttpException('Flight offer is no longer available', HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          'Flight offer is no longer available',
+          HttpStatus.BAD_REQUEST,
+        );
       }
 
       // Use the priced offer for booking
       const pricedOffer = pricingResponse.data[0];
 
+      // Sanitize and map travelers for Amadeus API
+      const amadeusTravelers = bookingDto.travelers.map((t) => {
+        const traveler: any = {
+          id: t.id,
+          dateOfBirth: t.dateOfBirth,
+          name: t.name,
+          gender: t.gender,
+          contact: t.contact,
+        };
+
+        // Reconstruct documents if flattened fields exist
+        if (t.documentNumber) {
+          traveler.documents = [
+            {
+              documentType:
+                t.documentType === 'ID_CARD' ? 'IDENTITY_CARD' : t.documentType,
+              number: t.documentNumber,
+              expiryDate: t.documentExpiry,
+              issuanceCountry: t.issuingCountry,
+              nationality: t.nationality,
+              holder: true,
+            },
+          ];
+        } else if (t.documents) {
+          traveler.documents = t.documents;
+        }
+
+        return traveler;
+      });
+
       const bookingRequest: FlightBookingRequest = {
         data: {
           type: 'flight-order',
           flightOffers: [pricedOffer],
-          travelers: bookingDto.travelers,
+          travelers: amadeusTravelers,
           ...(bookingDto.remarks && { remarks: bookingDto.remarks }),
           ...(bookingDto.contacts && { contacts: bookingDto.contacts }),
         },
@@ -301,17 +397,28 @@ export class AmadeusService {
       );
 
       // Save booking to database
-      const savedBooking = await this.saveFlightBookingToDatabase(response.data, userId, bookingDto);
+      const savedBooking = await this.saveFlightBookingToDatabase(
+        response.data,
+        userId,
+        bookingDto,
+      );
 
       // Send booking confirmation email
       try {
-        const customerEmail = bookingDto.contacts?.[0]?.emailAddress || savedBooking.contactInfo?.email;
+        const customerEmail =
+          bookingDto.contacts?.[0]?.emailAddress ||
+          savedBooking.contactInfo?.email;
         if (customerEmail && savedBooking.outboundFlights?.[0]) {
           const outboundFlight = savedBooking.outboundFlights[0];
-          const passengerNames = savedBooking.passengers.map(p => `${p.firstName} ${p.lastName}`).join(', ');
-          
+          const passengerNames = savedBooking.passengers
+            .map((p) => `${p.firstName} ${p.lastName}`)
+            .join(', ');
+
           await sendFlightBookingConfirmationEmail(customerEmail, {
-            customerName: savedBooking.passengers[0]?.firstName + ' ' + savedBooking.passengers[0]?.lastName,
+            customerName:
+              savedBooking.passengers[0]?.firstName +
+              ' ' +
+              savedBooking.passengers[0]?.lastName,
             bookingReference: savedBooking.bookingReference,
             totalAmount: `${savedBooking.totalPrice} ${savedBooking.currency}`,
             paymentStatus: savedBooking.paymentStatus,
@@ -329,17 +436,31 @@ export class AmadeusService {
             bookingId: savedBooking.id,
             customerEmail: customerEmail,
           });
-          this.logger.log(`Booking confirmation email sent to ${customerEmail}`);
+          this.logger.log(
+            `Booking confirmation email sent to ${customerEmail}`,
+          );
         }
       } catch (emailError) {
-        this.logger.error('Failed to send booking confirmation email', emailError);
+        this.logger.error(
+          'Failed to send booking confirmation email',
+          emailError,
+        );
         // Don't throw error - booking was successful even if email failed
       }
 
-      this.logger.log(`Flight booking created successfully: ${response.data.data.id}`);
+      this.logger.log(
+        `Flight booking created successfully: ${response.data.data.id}`,
+      );
       return response.data;
     } catch (error) {
       this.logger.error('Flight booking creation failed', error);
+      if (error instanceof Error) {
+        this.logger.error('Error stack:', error.stack);
+        this.logger.error(
+          'Error details:',
+          JSON.stringify(error, Object.getOwnPropertyNames(error)),
+        );
+      }
       throw this.handleAmadeusError(error);
     }
   }
@@ -362,6 +483,13 @@ export class AmadeusService {
       return response.data;
     } catch (error) {
       this.logger.error('Flight offer pricing failed', error);
+      if (error instanceof Error) {
+        this.logger.error('Error stack:', error.stack);
+        this.logger.error(
+          'Error details:',
+          JSON.stringify(error, Object.getOwnPropertyNames(error)),
+        );
+      }
       throw error;
     }
   }
@@ -369,7 +497,9 @@ export class AmadeusService {
   /**
    * Build flight search parameters
    */
-  private buildFlightSearchParams(searchDto: FlightSearchDto): FlightSearchRequest {
+  private buildFlightSearchParams(
+    searchDto: FlightSearchDto,
+  ): FlightSearchRequest {
     return {
       originLocationCode: searchDto.originLocationCode,
       destinationLocationCode: searchDto.destinationLocationCode,
@@ -468,20 +598,29 @@ export class AmadeusService {
     try {
       const booking = amadeusBooking.data;
       const flightOffer = booking.flightOffers[0];
-      
+
+      this.logger.log(`Saving booking ${booking.id} for user ${userId}`);
+
       // Generate internal booking reference
       const bookingReference = `MAR-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
 
       // Extract pricing information
       const totalPrice = parseFloat(flightOffer.price.total);
       const baseFare = parseFloat(flightOffer.price.base);
-      const taxes = flightOffer.price.fees?.reduce((sum, fee) => sum + parseFloat(fee.amount), 0) || 0;
+      const taxes =
+        flightOffer.price.fees?.reduce(
+          (sum, fee) => sum + parseFloat(fee.amount),
+          0,
+        ) || 0;
 
       // Determine booking type
-      const bookingType = flightOffer.itineraries.length > 1 ? 'ROUND_TRIP' : 'ONE_WAY';
+      const bookingType =
+        flightOffer.itineraries.length > 1 ? 'ROUND_TRIP' : 'ONE_WAY';
 
       // Get travel date (first departure)
-      const travelDate = new Date(flightOffer.itineraries[0].segments[0].departure.at);
+      const travelDate = new Date(
+        flightOffer.itineraries[0].segments[0].departure.at,
+      );
 
       // Create flight booking
       const flightBooking = await this.prisma.flightBooking.create({
@@ -495,12 +634,13 @@ export class AmadeusService {
           totalPrice,
           baseFare,
           taxes,
-          fees: 0, // Additional fees can be calculated separately
+          fees: 0,
           currency: flightOffer.price.currency,
           contactInfo: {
             email: booking.contacts?.[0]?.emailAddress || '',
             phone: booking.contacts?.[0]?.phones?.[0]?.number || '',
-            countryCode: booking.contacts?.[0]?.phones?.[0]?.countryCallingCode || '',
+            countryCode:
+              booking.contacts?.[0]?.phones?.[0]?.countryCallingCode || '',
           },
           paymentStatus: 'PENDING',
           searchCriteria: originalRequest as any,
@@ -512,10 +652,12 @@ export class AmadeusService {
               lastName: traveler.name.lastName,
               dateOfBirth: new Date(traveler.dateOfBirth),
               gender: traveler.gender,
-              documentType: this.mapDocumentType(traveler.documents?.[0]?.documentType) as any,
+              documentType: this.mapDocumentType(
+                traveler.documents?.[0]?.documentType,
+              ) as any,
               documentNumber: traveler.documents?.[0]?.number || '',
-              documentExpiry: traveler.documents?.[0]?.expiryDate 
-                ? new Date(traveler.documents[0].expiryDate) 
+              documentExpiry: traveler.documents?.[0]?.expiryDate
+                ? new Date(traveler.documents[0].expiryDate)
                 : null,
               issuingCountry: traveler.documents?.[0]?.issuanceCountry || '',
               nationality: traveler.documents?.[0]?.nationality || '',
@@ -526,38 +668,20 @@ export class AmadeusService {
             })),
           },
           outboundFlights: {
-            create: flightOffer.itineraries[0].segments.map((segment, index) => ({
-              airline: segment.carrierCode,
-              airlineName: amadeusBooking.dictionaries?.carriers?.[segment.carrierCode] || segment.carrierCode,
-              flightNumber: segment.number,
-              operatingAirline: segment.operating?.carrierCode,
-              aircraft: segment.aircraft.code,
-              aircraftName: amadeusBooking.dictionaries?.aircraft?.[segment.aircraft.code],
-              departureAirport: segment.departure.iataCode,
-              arrivalAirport: segment.arrival.iataCode,
-              departureTerminal: segment.departure.terminal,
-              arrivalTerminal: segment.arrival.terminal,
-              departureTime: new Date(segment.departure.at),
-              arrivalTime: new Date(segment.arrival.at),
-              duration: segment.duration,
-              bookingClass: flightOffer.travelerPricings[0].fareDetailsBySegment[index]?.class || 'Y',
-              cabin: this.mapCabinClass(flightOffer.travelerPricings[0].fareDetailsBySegment[index]?.cabin) as any,
-              fareBasis: flightOffer.travelerPricings[0].fareDetailsBySegment[index]?.fareBasis,
-              segmentNumber: index + 1,
-              isLayover: index > 0,
-              amadeusSegmentId: segment.id,
-              amadeusData: segment as any,
-            })),
-          },
-          ...(flightOffer.itineraries.length > 1 && {
-            returnFlights: {
-              create: flightOffer.itineraries[1].segments.map((segment, index) => ({
+            create: flightOffer.itineraries[0].segments.map(
+              (segment, index) => ({
                 airline: segment.carrierCode,
-                airlineName: amadeusBooking.dictionaries?.carriers?.[segment.carrierCode] || segment.carrierCode,
+                airlineName:
+                  amadeusBooking.dictionaries?.carriers?.[
+                    segment.carrierCode
+                  ] || segment.carrierCode,
                 flightNumber: segment.number,
                 operatingAirline: segment.operating?.carrierCode,
                 aircraft: segment.aircraft.code,
-                aircraftName: amadeusBooking.dictionaries?.aircraft?.[segment.aircraft.code],
+                aircraftName:
+                  amadeusBooking.dictionaries?.aircraft?.[
+                    segment.aircraft.code
+                  ],
                 departureAirport: segment.departure.iataCode,
                 arrivalAirport: segment.arrival.iataCode,
                 departureTerminal: segment.departure.terminal,
@@ -565,14 +689,65 @@ export class AmadeusService {
                 departureTime: new Date(segment.departure.at),
                 arrivalTime: new Date(segment.arrival.at),
                 duration: segment.duration,
-                bookingClass: flightOffer.travelerPricings[0].fareDetailsBySegment[flightOffer.itineraries[0].segments.length + index]?.class || 'Y',
-                cabin: this.mapCabinClass(flightOffer.travelerPricings[0].fareDetailsBySegment[flightOffer.itineraries[0].segments.length + index]?.cabin) as any,
-                fareBasis: flightOffer.travelerPricings[0].fareDetailsBySegment[flightOffer.itineraries[0].segments.length + index]?.fareBasis,
+                bookingClass:
+                  flightOffer.travelerPricings[0].fareDetailsBySegment[index]
+                    ?.class || 'Y',
+                cabin: this.mapCabinClass(
+                  flightOffer.travelerPricings[0].fareDetailsBySegment[index]
+                    ?.cabin,
+                ) as any,
+                fareBasis:
+                  flightOffer.travelerPricings[0].fareDetailsBySegment[index]
+                    ?.fareBasis,
                 segmentNumber: index + 1,
                 isLayover: index > 0,
                 amadeusSegmentId: segment.id,
                 amadeusData: segment as any,
-              })),
+              }),
+            ),
+          },
+          ...(flightOffer.itineraries.length > 1 && {
+            returnFlights: {
+              create: flightOffer.itineraries[1].segments.map(
+                (segment, index) => ({
+                  airline: segment.carrierCode,
+                  airlineName:
+                    amadeusBooking.dictionaries?.carriers?.[
+                      segment.carrierCode
+                    ] || segment.carrierCode,
+                  flightNumber: segment.number,
+                  operatingAirline: segment.operating?.carrierCode,
+                  aircraft: segment.aircraft.code,
+                  aircraftName:
+                    amadeusBooking.dictionaries?.aircraft?.[
+                      segment.aircraft.code
+                    ],
+                  departureAirport: segment.departure.iataCode,
+                  arrivalAirport: segment.arrival.iataCode,
+                  departureTerminal: segment.departure.terminal,
+                  arrivalTerminal: segment.arrival.terminal,
+                  departureTime: new Date(segment.departure.at),
+                  arrivalTime: new Date(segment.arrival.at),
+                  duration: segment.duration,
+                  bookingClass:
+                    flightOffer.travelerPricings[0].fareDetailsBySegment[
+                      flightOffer.itineraries[0].segments.length + index
+                    ]?.class || 'Y',
+                  cabin: this.mapCabinClass(
+                    flightOffer.travelerPricings[0].fareDetailsBySegment[
+                      flightOffer.itineraries[0].segments.length + index
+                    ]?.cabin,
+                  ) as any,
+                  fareBasis:
+                    flightOffer.travelerPricings[0].fareDetailsBySegment[
+                      flightOffer.itineraries[0].segments.length + index
+                    ]?.fareBasis,
+                  segmentNumber: index + 1,
+                  isLayover: index > 0,
+                  amadeusSegmentId: segment.id,
+                  amadeusData: segment as any,
+                }),
+              ),
             },
           }),
         },
@@ -582,6 +757,13 @@ export class AmadeusService {
       return flightBooking;
     } catch (error) {
       this.logger.error('Failed to save flight booking to database', error);
+      if (error instanceof Error) {
+        this.logger.error('Error stack:', error.stack);
+        this.logger.error(
+          'Error details:',
+          JSON.stringify(error, Object.getOwnPropertyNames(error)),
+        );
+      }
       throw error;
     }
   }
@@ -591,13 +773,13 @@ export class AmadeusService {
    */
   private mapDocumentType(amadeusDocType: string): string {
     const docTypeMap: { [key: string]: string } = {
-      'PASSPORT': 'PASSPORT',
-      'IDENTITY_CARD': 'NATIONAL_ID',
-      'NATIONAL_ID': 'NATIONAL_ID',
-      'DRIVERS_LICENSE': 'DRIVERS_LICENSE',
-      'DRIVING_LICENSE': 'DRIVERS_LICENSE',
+      PASSPORT: 'PASSPORT',
+      IDENTITY_CARD: 'NATIONAL_ID',
+      NATIONAL_ID: 'NATIONAL_ID',
+      DRIVERS_LICENSE: 'DRIVERS_LICENSE',
+      DRIVING_LICENSE: 'DRIVERS_LICENSE',
     };
-    
+
     return docTypeMap[amadeusDocType?.toUpperCase()] || 'PASSPORT';
   }
 
@@ -606,23 +788,25 @@ export class AmadeusService {
    */
   private mapCabinClass(amadeusClass: string): string {
     const classMap: { [key: string]: string } = {
-      'ECONOMY': 'ECONOMY',
-      'PREMIUM_ECONOMY': 'PREMIUM_ECONOMY',
-      'BUSINESS': 'BUSINESS',
-      'FIRST': 'FIRST',
+      ECONOMY: 'ECONOMY',
+      PREMIUM_ECONOMY: 'PREMIUM_ECONOMY',
+      BUSINESS: 'BUSINESS',
+      FIRST: 'FIRST',
     };
-    
+
     return classMap[amadeusClass?.toUpperCase()] || 'ECONOMY';
   }
   private handleAmadeusError(error: any): HttpException {
     if (error.response?.data) {
       const amadeusError = error.response.data as AmadeusErrorResponse;
-      
+
       if (amadeusError.errors && amadeusError.errors.length > 0) {
         const firstError = amadeusError.errors[0];
-        const message = firstError.detail || firstError.title || 'Amadeus API error';
-        const status = firstError.status || error.response.status || HttpStatus.BAD_REQUEST;
-        
+        const message =
+          firstError.detail || firstError.title || 'Amadeus API error';
+        const status =
+          firstError.status || error.response.status || HttpStatus.BAD_REQUEST;
+
         return new HttpException(message, status);
       }
     }
@@ -655,7 +839,10 @@ export class AmadeusService {
       });
 
       if (!booking) {
-        throw new HttpException('Flight booking not found', HttpStatus.NOT_FOUND);
+        throw new HttpException(
+          'Flight booking not found',
+          HttpStatus.NOT_FOUND,
+        );
       }
 
       return booking;
@@ -690,30 +877,47 @@ export class AmadeusService {
   /**
    * Cancel a flight booking
    */
-  async cancelFlightBooking(bookingId: string, userId: string, cancellationReason?: string) {
+  async cancelFlightBooking(
+    bookingId: string,
+    userId: string,
+    cancellationReason?: string,
+  ) {
     try {
       // Get the booking first
       const booking = await this.getFlightBooking(bookingId, userId);
-      
+
       if (!booking) {
-        throw new HttpException('Flight booking not found', HttpStatus.NOT_FOUND);
+        throw new HttpException(
+          'Flight booking not found',
+          HttpStatus.NOT_FOUND,
+        );
       }
 
       // Check if booking can be cancelled
       if (booking.status === 'CANCELLED' || booking.status === 'REFUNDED') {
-        throw new HttpException('Booking is already cancelled or refunded', HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          'Booking is already cancelled or refunded',
+          HttpStatus.BAD_REQUEST,
+        );
       }
 
       if (booking.status === 'COMPLETED') {
-        throw new HttpException('Cannot cancel a completed flight', HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          'Cannot cancel a completed flight',
+          HttpStatus.BAD_REQUEST,
+        );
       }
 
       // Check cancellation policy (24 hours before departure)
       const departureTime = booking.outboundFlights?.[0]?.departureTime;
       if (departureTime) {
-        const hoursUntilDeparture = (new Date(departureTime).getTime() - new Date().getTime()) / (1000 * 60 * 60);
+        const hoursUntilDeparture =
+          (new Date(departureTime).getTime() - new Date().getTime()) /
+          (1000 * 60 * 60);
         if (hoursUntilDeparture < 24) {
-          this.logger.warn(`Cancellation attempted within 24 hours of departure for booking ${bookingId}`);
+          this.logger.warn(
+            `Cancellation attempted within 24 hours of departure for booking ${bookingId}`,
+          );
           // Still allow cancellation but may affect refund amount
         }
       }
@@ -725,67 +929,88 @@ export class AmadeusService {
           // Note: Amadeus doesn't have a direct cancellation API for flight orders
           // In a real implementation, you would need to contact the airline directly
           // For now, we'll simulate the cancellation
-          this.logger.log(`Attempting to cancel Amadeus booking: ${booking.amadeusBookingId}`);
+          this.logger.log(
+            `Attempting to cancel Amadeus booking: ${booking.amadeusBookingId}`,
+          );
           amadeusSuccess = true;
         } catch (amadeusError) {
-          this.logger.error('Amadeus cancellation failed, proceeding with local cancellation', amadeusError);
+          this.logger.error(
+            'Amadeus cancellation failed, proceeding with local cancellation',
+            amadeusError,
+          );
           // Continue with local cancellation even if Amadeus fails
         }
       }
 
       // Update booking status in database
-       const updatedBooking = await this.prisma.flightBooking.update({
-         where: { id: bookingId },
-         data: {
-           status: 'CANCELLED',
-           cancellationReason,
-           cancelledAt: new Date(),
-         },
-         include: {
-           passengers: true,
-           outboundFlights: true,
-           returnFlights: true,
-           payments: true,
-         },
-       });
+      const updatedBooking = await this.prisma.flightBooking.update({
+        where: { id: bookingId },
+        data: {
+          status: 'CANCELLED',
+          cancellationReason,
+          cancelledAt: new Date(),
+        },
+        include: {
+          passengers: true,
+          outboundFlights: true,
+          returnFlights: true,
+          payments: true,
+        },
+      });
 
-       // Process refund if payment was made
-       let refundResult = null;
-       if (updatedBooking.payments && updatedBooking.payments.length > 0) {
-         const successfulPayments = updatedBooking.payments.filter(p => p.status === 'COMPLETED');
-         
-         for (const payment of successfulPayments) {
-           try {
-             // Calculate refund amount based on cancellation policy
-             const refundAmount = this.calculateRefundAmount(booking, departureTime);
-             
-             refundResult = await this.paymentService.refundPayment({
-               paymentId: payment.id,
-               amount: refundAmount,
-               reason: cancellationReason || 'Flight booking cancelled by customer',
-             });
+      // Process refund if payment was made
+      let refundResult = null;
+      if (updatedBooking.payments && updatedBooking.payments.length > 0) {
+        const successfulPayments = updatedBooking.payments.filter(
+          (p) => p.status === 'COMPLETED',
+        );
 
-             this.logger.log(`Refund processed for payment ${payment.id}: ${refundResult.refundId}`);
-           } catch (refundError) {
-             this.logger.error(`Failed to process refund for payment ${payment.id}`, refundError);
-             // Continue with other payments
-           }
-         }
-       }
+        for (const payment of successfulPayments) {
+          try {
+            // Calculate refund amount based on cancellation policy
+            const refundAmount = this.calculateRefundAmount(
+              booking,
+              departureTime,
+            );
+
+            refundResult = await this.paymentService.refundPayment({
+              paymentId: payment.id,
+              amount: refundAmount,
+              reason:
+                cancellationReason || 'Flight booking cancelled by customer',
+            });
+
+            this.logger.log(
+              `Refund processed for payment ${payment.id}: ${refundResult.refundId}`,
+            );
+          } catch (refundError) {
+            this.logger.error(
+              `Failed to process refund for payment ${payment.id}`,
+              refundError,
+            );
+            // Continue with other payments
+          }
+        }
+      }
 
       // Send cancellation email notification
       try {
         const customerEmail = updatedBooking.contactInfo?.email;
         if (customerEmail && updatedBooking.outboundFlights?.[0]) {
           const outboundFlight = updatedBooking.outboundFlights[0];
-          
+
           await sendFlightBookingCancellationEmail(customerEmail, {
-            customerName: updatedBooking.passengers[0]?.firstName + ' ' + updatedBooking.passengers[0]?.lastName,
+            customerName:
+              updatedBooking.passengers[0]?.firstName +
+              ' ' +
+              updatedBooking.passengers[0]?.lastName,
             bookingReference: updatedBooking.bookingReference,
             cancellationDate: new Date().toDateString(),
             cancellationReason: cancellationReason || 'Customer request',
             refundStatus: refundResult ? 'Processed' : 'Pending',
-            refundAmount: refundResult ? `${refundResult.amount} ${updatedBooking.currency}` : undefined,
+            refundAmount: refundResult
+              ? `${refundResult.amount} ${updatedBooking.currency}`
+              : undefined,
             departureCity: outboundFlight.departureAirport,
             departureCode: outboundFlight.departureAirport,
             arrivalCity: outboundFlight.arrivalAirport,
@@ -804,7 +1029,7 @@ export class AmadeusService {
       }
 
       this.logger.log(`Flight booking cancelled successfully: ${bookingId}`);
-      
+
       return {
         booking: updatedBooking,
         refund: refundResult,
@@ -819,36 +1044,56 @@ export class AmadeusService {
   /**
    * Modify a flight booking
    */
-  async modifyFlightBooking(bookingId: string, userId: string, modifications: any) {
+  async modifyFlightBooking(
+    bookingId: string,
+    userId: string,
+    modifications: any,
+  ) {
     try {
       // Get the booking first
       const booking = await this.getFlightBooking(bookingId, userId);
-      
+
       if (!booking) {
-        throw new HttpException('Flight booking not found', HttpStatus.NOT_FOUND);
+        throw new HttpException(
+          'Flight booking not found',
+          HttpStatus.NOT_FOUND,
+        );
       }
 
       // Check if booking can be modified
       if (booking.status === 'CANCELLED' || booking.status === 'REFUNDED') {
-        throw new HttpException('Cannot modify a cancelled or refunded booking', HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          'Cannot modify a cancelled or refunded booking',
+          HttpStatus.BAD_REQUEST,
+        );
       }
 
       if (booking.status === 'COMPLETED') {
-        throw new HttpException('Cannot modify a completed flight', HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          'Cannot modify a completed flight',
+          HttpStatus.BAD_REQUEST,
+        );
       }
 
       // Check modification policy (48 hours before departure)
       const departureTime = booking.outboundFlights?.[0]?.departureTime;
       if (departureTime) {
-        const hoursUntilDeparture = (new Date(departureTime).getTime() - new Date().getTime()) / (1000 * 60 * 60);
+        const hoursUntilDeparture =
+          (new Date(departureTime).getTime() - new Date().getTime()) /
+          (1000 * 60 * 60);
         if (hoursUntilDeparture < 48) {
-          throw new HttpException('Cannot modify booking within 48 hours of departure', HttpStatus.BAD_REQUEST);
+          throw new HttpException(
+            'Cannot modify booking within 48 hours of departure',
+            HttpStatus.BAD_REQUEST,
+          );
         }
       }
 
       // Validate modifications
       if (modifications.passengers) {
-        this.passengerValidationService.validatePassengers(modifications.passengers);
+        this.passengerValidationService.validatePassengers(
+          modifications.passengers,
+        );
       }
 
       // Update passenger information if provided
@@ -868,14 +1113,19 @@ export class AmadeusService {
               middleName: passengerData.name.middleName,
               dateOfBirth: new Date(passengerData.dateOfBirth),
               gender: passengerData.gender,
-              documentType: this.mapDocumentType(passengerData.documents[0].documentType) as any,
+              documentType: this.mapDocumentType(
+                passengerData.documents[0].documentType,
+              ) as any,
               documentNumber: passengerData.documents[0].number,
-              documentExpiry: passengerData.documents[0].expiryDate ? new Date(passengerData.documents[0].expiryDate) : null,
+              documentExpiry: passengerData.documents[0].expiryDate
+                ? new Date(passengerData.documents[0].expiryDate)
+                : null,
               issuingCountry: passengerData.documents[0].issuanceCountry,
               nationality: passengerData.documents[0].nationality,
               email: passengerData.contact?.emailAddress,
               phone: passengerData.contact?.phones?.[0]?.number,
-              isLeadPassenger: passengerData.id === modifications.passengers[0].id,
+              isLeadPassenger:
+                passengerData.id === modifications.passengers[0].id,
             },
           });
         }
@@ -911,14 +1161,16 @@ export class AmadeusService {
    */
   private calculateRefundAmount(booking: any, departureTime?: Date): number {
     const totalAmount = booking.totalPrice;
-    
+
     if (!departureTime) {
       // If no departure time, apply standard cancellation fee
       return Math.max(0, totalAmount - 50); // $50 cancellation fee
     }
 
-    const hoursUntilDeparture = (new Date(departureTime).getTime() - new Date().getTime()) / (1000 * 60 * 60);
-    
+    const hoursUntilDeparture =
+      (new Date(departureTime).getTime() - new Date().getTime()) /
+      (1000 * 60 * 60);
+
     if (hoursUntilDeparture >= 24) {
       // More than 24 hours: 90% refund
       return totalAmount * 0.9;

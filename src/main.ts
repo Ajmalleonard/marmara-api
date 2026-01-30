@@ -63,6 +63,7 @@ async function bootstrap() {
 
   // Ensure the server is listening on all network interfaces
   await app.listen(port, '127.0.0.1');
+  console.log(`[Bootstrap] Application is running on port ${port}`);
 
 }
 function ensureWhatsAppAuthPersistence() {

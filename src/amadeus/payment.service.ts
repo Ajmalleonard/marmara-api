@@ -85,27 +85,42 @@ export class PaymentService {
    */
   async createPaymentIntent(dto: CreatePaymentIntentDto): Promise<PaymentIntent> {
     try {
-      // Verify flight booking exists and belongs to user
+      // Verify flight booking exists
+      const whereClause: any = { id: dto.flightBookingId };
+      if (dto.userId) {
+        whereClause.userId = dto.userId;
+      }
+
       const flightBooking = await this.prisma.flightBooking.findFirst({
-        where: {
-          id: dto.flightBookingId,
-          userId: dto.userId,
-        },
+        where: whereClause,
       });
 
       if (!flightBooking) {
-        throw new BadRequestException('Flight booking not found or access denied');
+        throw new BadRequestException(
+          'Flight booking not found or access denied',
+        );
       }
+
+      // If userId was not provided in DTO, use the one from the booking
+      const userId = dto.userId || flightBooking.userId;
+      dto.userId = userId;
 
       // Calculate service fees
       const serviceFee = this.calculateServiceFee(dto.amount);
       const processingFee = this.calculateProcessingFee(dto.amount);
       const totalAmount = dto.amount + serviceFee + processingFee;
 
-      this.logger.log(`Creating payment intent for amount: ${dto.amount}, total: ${totalAmount}`);
+      this.logger.log(
+        `Creating payment intent for amount: ${dto.amount}, total: ${totalAmount}`,
+      );
 
       // Only support PesaPal now
-      return await this.createPesapalPaymentIntent(dto, serviceFee, processingFee, totalAmount);
+      return await this.createPesapalPaymentIntent(
+        dto,
+        serviceFee,
+        processingFee,
+        totalAmount,
+      );
     } catch (error) {
       this.logger.error('Failed to create payment intent', error.stack);
       throw error;
@@ -249,12 +264,17 @@ export class PaymentService {
   async processPayment(dto: ProcessPaymentDto): Promise<PaymentResult> {
     try {
       // Find payment record
+      const whereClause: any = {
+        pesapalOrderId: dto.paymentIntentId,
+        flightBookingId: dto.flightBookingId,
+      };
+
+      if (dto.userId) {
+        whereClause.userId = dto.userId;
+      }
+
       const payment = await this.prisma.payment.findFirst({
-        where: {
-          pesapalOrderId: dto.paymentIntentId,
-          flightBookingId: dto.flightBookingId,
-          userId: dto.userId,
-        },
+        where: whereClause,
       });
 
       if (!payment) {
